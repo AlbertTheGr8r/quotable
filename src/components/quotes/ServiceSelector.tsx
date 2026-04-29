@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useProjectStore } from '@/stores/project-store';
 import type { RateFile, Service } from '@/lib/schema/rates';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, ChevronRight, Tag } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Search, ChevronRight } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 interface ServiceSelectorProps {
@@ -76,35 +78,94 @@ export function ServiceSelector({ rates, projectId, onSelect }: ServiceSelectorP
       </div>
       
       <ScrollArea className="flex-1">
-        <div className="p-2">
-          {results.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
-              No services found matching "{search}"
-            </div>
-          )}
-          
-          {results.map((service, idx) => (
-            <div
-              key={`${service.id}-${idx}`}
-              className="group flex flex-col p-4 rounded-lg hover:bg-muted cursor-pointer transition-colors border border-transparent hover:border-border mb-1"
-              onClick={() => handleSelect(service)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{service.label}</h4>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted-foreground/10 text-muted-foreground uppercase font-bold tracking-wider">
-                      {(service as any).categoryLabel}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {service.description || `Based on ${service.unit_display}`}
-                  </p>
+        <div className="p-2 flex flex-col gap-1">
+          {search ? (
+            // Search mode: flat list sorted by relevance
+            <>
+              {results.length === 0 && (
+                <div className="p-8 text-center text-muted-foreground text-sm">
+                  No services found matching "{search}"
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all transform translate-x-0 group-hover:translate-x-1" />
-              </div>
-            </div>
-          ))}
+              )}
+              {results.map((service, idx) => (
+                <Button
+                  key={`${service.id}-${idx}`}
+                  variant="ghost"
+                  className="group flex h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left font-normal"
+                  onClick={() => handleSelect(service)}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{service.label}</span>
+                      <Badge variant="secondary" className="text-[10px] uppercase tracking-wider px-1.5 py-0">
+                        {service.categoryLabel}
+                      </Badge>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all transform translate-x-0 group-hover:translate-x-1 shrink-0" />
+                  </div>
+                  {service.description && (
+                    <span className="text-xs text-muted-foreground line-clamp-1 w-[90%]">
+                      {service.description}
+                    </span>
+                  )}
+                </Button>
+              ))}
+            </>
+          ) : (
+            // Default mode: Grouped by category
+            <>
+              {rates?.categories.map((cat) => (
+                <div key={cat.id} className="mb-4">
+                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    {cat.label}
+                  </div>
+                  {cat.services.map((service) => (
+                    <Button
+                      key={service.id}
+                      variant="ghost"
+                      className="group flex h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left font-normal"
+                      onClick={() => handleSelect(service)}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-semibold text-sm">{service.label}</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all transform translate-x-0 group-hover:translate-x-1 shrink-0" />
+                      </div>
+                      {service.description && (
+                        <span className="text-xs text-muted-foreground line-clamp-1 w-[90%]">
+                          {service.description}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                </div>
+              ))}
+              {rates?.uncategorized && rates.uncategorized.length > 0 && (
+                <div className="mb-4">
+                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Other
+                  </div>
+                  {rates.uncategorized.map((service) => (
+                    <Button
+                      key={service.id}
+                      variant="ghost"
+                      className="group flex h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left font-normal"
+                      onClick={() => handleSelect(service)}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-semibold text-sm">{service.label}</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all transform translate-x-0 group-hover:translate-x-1 shrink-0" />
+                      </div>
+                      {service.description && (
+                        <span className="text-xs text-muted-foreground line-clamp-1 w-[90%]">
+                          {service.description}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </ScrollArea>
     </div>

@@ -49,10 +49,21 @@ export class ComputationEngine {
         if (service.table) {
           const { table } = service;
           // Determine column
+          const lookupQty = (table.excess_threshold && quantity > table.excess_threshold) 
+            ? table.excess_threshold 
+            : quantity;
+
           const maxCol = Math.max(...table.columns);
-          const tens = Math.min(Math.floor(quantity / 10) * 10, maxCol);
+          let tens = Math.min(Math.floor(lookupQty / 10) * 10, maxCol);
+          let units = lookupQty - tens;
+
+          // Handle exact multiples of 10 (e.g. 10ha -> tens=0, units=10)
+          if (units === 0 && tens >= 10) {
+            tens -= 10;
+            units = 10;
+          }
+
           const colIndex = table.columns.indexOf(tens);
-          const units = quantity - tens;
 
           // Find row id
           const rowLogic = table.row_logic.find(
