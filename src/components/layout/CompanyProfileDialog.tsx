@@ -9,9 +9,15 @@ import { Label } from "@/components/ui/label";
 import { LogoStorage } from "@/lib/storage/idb";
 import { useCompanyStore } from "@/stores/company-store";
 
-export function CompanyProfileDialog() {
+interface CompanyProfileDialogProps {
+  trigger?: React.ReactElement;
+  onComplete?: () => void;
+}
+
+export function CompanyProfileDialog({ trigger, onComplete }: CompanyProfileDialogProps) {
   const { profile, setProfile } = useCompanyStore();
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,14 +49,23 @@ export function CompanyProfileDialog() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      setIsOpen(open);
+      if (!open && onComplete) onComplete();
+    }}>
       <DialogTrigger
         render={
-          <Button variant="outline" className="w-full justify-start text-xs h-8" size="sm">
-            <Building2 className="h-3.5 w-3.5 mr-2" /> Company Profile
-          </Button>
+          trigger || (
+            <Button variant="outline" className="w-full justify-start text-xs h-8" size="sm" />
+          )
         }
-      />
+      >
+        {!trigger && (
+          <>
+            <Building2 className="h-3.5 w-3.5 mr-2" /> Company Profile
+          </>
+        )}
+      </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Company Branding</DialogTitle>

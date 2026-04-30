@@ -38,42 +38,42 @@ export function ProjectSidebar() {
           )}
 
           {projects.map((project) => (
-            // biome-ignore lint: nested buttons require div with role='button'
             <div
               key={project.id}
-              role="button"
-              tabIndex={0}
               className={cn(
-                "group flex w-full items-center gap-2 p-2 px-3 rounded-md cursor-pointer transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                activeProjectId === project.id ? "bg-primary/10 text-primary" : "hover:bg-muted",
+                "group flex w-full items-center gap-1 p-1 rounded-md transition-colors",
+                activeProjectId === project.id ? "bg-primary/10" : "hover:bg-muted/50",
               )}
-              onClick={() => actions.setActiveProject(project.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  actions.setActiveProject(project.id);
-                }
-              }}
             >
-              <div className="flex-1 truncate font-medium text-sm">{project.name}</div>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "flex-1 justify-start h-9 px-2 font-medium text-sm truncate transition-all hover:bg-transparent",
+                  activeProjectId === project.id ? "text-primary" : "text-foreground/80 hover:text-foreground",
+                )}
+                onClick={() => actions.setActiveProject(project.id)}
+              >
+                <span className="truncate">{project.name}</span>
+              </Button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
+                      size="icon-xs"
+                      className={cn(
+                        "opacity-0 group-hover:opacity-100 transition-opacity",
+                        activeProjectId === project.id && "opacity-100 text-primary",
+                      )}
+                    />
                   }
-                />
+                >
+                  <MoreVertical className="h-3.5 w-3.5" />
+                </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       const newName = prompt("Enter new project name", project.name);
                       if (newName) actions.updateProject(project.id, { name: newName });
                     }}
@@ -81,8 +81,7 @@ export function ProjectSidebar() {
                     <Pencil className="h-4 w-4 mr-2" /> Rename
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       // TODO: Copy code logic
                     }}
                   >
@@ -90,8 +89,7 @@ export function ProjectSidebar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       actions.deleteProject(project.id);
                     }}
                   >

@@ -39,8 +39,17 @@ interface ProjectState {
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set) => ({
-      projects: [],
-      activeProjectId: null,
+      projects: [
+        {
+          id: "project-1",
+          name: "Project 1",
+          yamlUrl: "/rates/gepi-2020-2023.yaml",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          quoteItems: [],
+        },
+      ],
+      activeProjectId: "project-1",
       actions: {
         createProject: (name, yamlUrl) => {
           const newProject: Project = {

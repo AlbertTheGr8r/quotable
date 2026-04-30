@@ -1,6 +1,7 @@
 import yaml from "js-yaml";
 import { useEffect, useState } from "react";
 import { type RateFile, RateFileSchema } from "@/lib/schema/rates";
+import { YamlStorage } from "@/lib/storage/idb";
 
 export function useYamlData(url: string) {
   const [data, setData] = useState<RateFile | null>(null);
@@ -11,12 +12,20 @@ export function useYamlData(url: string) {
     async function fetchYaml() {
       try {
         setLoading(true);
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Failed to fetch rates: ${response.statusText}`);
+        let text: string;
 
-        const text = await response.text();
+        if (url.startsWith("local://")) {
+          const id = url.replace("local://", "");
+          const record = await YamlStorage.getYaml(id);
+          if (!record) throw new Error("Custom rate schedule not found");
+          text = record.content;
+        } else {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Failed to fetch rates: ${response.statusText}`);
+          text = await response.text();
+        }
+
         const parsed = yaml.load(text);
-
         const validated = RateFileSchema.parse(parsed);
         setData(validated);
         setLoading(false);
