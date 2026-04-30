@@ -3,7 +3,6 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Download, FileText, Receipt } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { CompanyProfileDialog } from "../layout/CompanyProfileDialog";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -25,6 +24,7 @@ import { LogoStorage } from "@/lib/storage/idb";
 import { cn } from "@/lib/utils";
 import { useCompanyStore } from "@/stores/company-store";
 import { useProjectStore } from "@/stores/project-store";
+import { CompanyProfileDialog } from "../layout/CompanyProfileDialog";
 import { QuotePDF } from "./QuotePDF";
 
 export function ReceiptPanel() {
@@ -129,7 +129,10 @@ export function ReceiptPanel() {
             <Button
               variant="ghost"
               size="icon"
-              className={cn("h-8 w-8 transition-all hover:bg-primary/10 hover:text-primary", showWorksheet && "bg-primary/10 text-primary")}
+              className={cn(
+                "h-8 w-8 transition-all hover:bg-primary/10 hover:text-primary",
+                showWorksheet && "bg-primary/10 text-primary",
+              )}
               onClick={() => setShowWorksheet(!showWorksheet)}
             >
               <FileText className="h-4 w-4" />
@@ -146,104 +149,114 @@ export function ReceiptPanel() {
           </div>
         ) : (
           <div className="p-6 flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            {results.map((res) => (
-              <div key={res.id} className="flex flex-col gap-1">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex flex-col gap-0.5">
-                    <h4 className="font-semibold text-sm">{res?.service.label}</h4>
+            <div className="flex flex-col gap-2">
+              {results.map((res) => (
+                <div key={res.id} className="flex flex-col gap-1">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <h4 className="font-semibold text-sm">{res?.service.label}</h4>
+                    </div>
+                    <span className="text-sm tabular-nums font-semibold">{res?.total.format()}</span>
                   </div>
-                  <span className="text-sm tabular-nums font-semibold">{res?.total.format()}</span>
+
+                  {showWorksheet && (
+                    <div className="ml-2 pl-3 border-l-2 border-muted py-1 flex flex-col gap-1">
+                      {res.lineItems.map((li) => (
+                        <div key={li.id} className="flex justify-between text-[11px] text-muted-foreground">
+                          <span>{li.label}</span>
+                          <span>{li.formattedAmount}</span>
+                        </div>
+                      ))}
+                      {res.modifiers.map((mod) => (
+                        <div key={mod.id} className="flex justify-between text-[11px] text-success italic">
+                          <span>
+                            {mod.label}: {mod.optionLabel}
+                          </span>
+                          <span>+{mod.formattedAmount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-                {showWorksheet && (
-                  <div className="ml-2 pl-3 border-l-2 border-muted py-1 flex flex-col gap-1">
-                    {res.lineItems.map((li) => (
-                      <div key={li.id} className="flex justify-between text-[11px] text-muted-foreground">
-                        <span>{li.label}</span>
-                        <span>{li.formattedAmount}</span>
-                      </div>
-                    ))}
-                    {res.modifiers.map((mod) => (
-                      <div key={mod.id} className="flex justify-between text-[11px] text-success italic">
-                        <span>
-                          {mod.label}: {mod.optionLabel}
-                        </span>
-                        <span>+{mod.formattedAmount}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <Separator />
-
-          <div className="flex flex-col gap-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">{totals.subtotal}</span>
+              ))}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="vat"
-                  checked={includeVat}
-                  onCheckedChange={(checked: boolean | "indeterminate") => setIncludeVat(!!checked)}
-                />
-                <label htmlFor="vat" className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
-                  VAT (12%)
-                </label>
-              </div>
-              <span className="text-sm font-medium">{totals.vat}</span>
-            </div>
-            <p className="text-[10px] text-muted-foreground italic -mt-2">
-              Note: System automatically handles vatable vs non-vatable services based on the rate schedule schema.
-            </p>
+            <Separator />
 
-            <div className="mt-2 p-4 bg-primary/5 rounded-lg border border-primary/20 transition-all hover:bg-primary/10">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">{totals.subtotal}</span>
+              </div>
+
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase font-bold text-primary/60">Grand Total</span>
-                <span className="text-2xl font-bold text-primary tracking-tighter tabular-nums">{totals.grand}</span>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="vat"
+                    checked={includeVat}
+                    onCheckedChange={(checked: boolean | "indeterminate") => setIncludeVat(!!checked)}
+                  />
+                  <label
+                    htmlFor="vat"
+                    className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                  >
+                    VAT (12%)
+                  </label>
+                </div>
+                <span className="text-sm font-medium">{totals.vat}</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground italic -mt-2">
+                Note: System automatically handles vatable vs non-vatable services based on the rate schedule schema.
+              </p>
+
+              <div className="mt-2 p-4 bg-primary/5 rounded-lg border border-primary/20 transition-all hover:bg-primary/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase font-bold text-primary/60">Grand Total</span>
+                  <span className="text-2xl font-bold text-primary tracking-tighter tabular-nums">{totals.grand}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-2 pt-4">
-            {isClient && (
-              isProfileEmpty ? (
-                <Button 
-                  className="w-full gap-2 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]" 
-                  onClick={() => setIsExportDialogOpen(true)}
-                >
+            <div className="flex flex-col gap-2 pt-4">
+              {isClient &&
+                (isProfileEmpty ? (
+                  <Button
+                    className="w-full gap-2 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    onClick={() => setIsExportDialogOpen(true)}
+                  >
+                    <Download className="h-4 w-4" /> EXPORT PDF
+                  </Button>
+                ) : (
+                  <PDFDownloadLink
+                    document={
+                      <QuotePDF
+                        project={project}
+                        results={results}
+                        totals={totals}
+                        branding={{ ...profile, logoUrl }}
+                      />
+                    }
+                    fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
+                  >
+                    {({ loading }) => (
+                      <Button
+                        className="w-full gap-2 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        disabled={loading}
+                      >
+                        <Download className="h-4 w-4" /> {loading ? "PREPARING..." : "EXPORT PDF"}
+                      </Button>
+                    )}
+                  </PDFDownloadLink>
+                ))}
+              {!isClient && (
+                <Button className="w-full gap-2 font-bold shadow-lg opacity-50" disabled>
                   <Download className="h-4 w-4" /> EXPORT PDF
                 </Button>
-              ) : (
-                <PDFDownloadLink
-                  document={
-                    <QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />
-                  }
-                  fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
-                >
-                  {({ loading }) => (
-                    <Button className="w-full gap-2 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={loading}>
-                      <Download className="h-4 w-4" /> {loading ? "PREPARING..." : "EXPORT PDF"}
-                    </Button>
-                  )}
-                </PDFDownloadLink>
-              )
-            )}
-            {!isClient && (
-              <Button className="w-full gap-2 font-bold shadow-lg opacity-50" disabled>
-                <Download className="h-4 w-4" /> EXPORT PDF
-              </Button>
-            )}
-            <p className="text-[10px] text-center text-muted-foreground px-4">
-              All quotes generated are based on current legislative rates and are subject to final adjustment.
-            </p>
-          </div>
+              )}
+              <p className="text-[10px] text-center text-muted-foreground px-4">
+                All quotes generated are based on current legislative rates and are subject to final adjustment.
+              </p>
+            </div>
           </div>
         )}
       </ScrollArea>
@@ -253,15 +266,19 @@ export function ReceiptPanel() {
           <AlertDialogHeader>
             <AlertDialogTitle>Incomplete Company Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Your company profile is missing some details (name or email). This information is used in the quote header for professional branding.
+              Your company profile is missing some details (name or email). This information is used in the quote header
+              for professional branding.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel className="sm:mt-0">Cancel</AlertDialogCancel>
             <div className="flex flex-col sm:flex-row gap-2">
-              <CompanyProfileDialog 
+              <CompanyProfileDialog
                 trigger={
-                  <Button variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold">
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold"
+                  >
                     COMPLETE PROFILE
                   </Button>
                 }
@@ -275,9 +292,9 @@ export function ReceiptPanel() {
                   fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
                 >
                   {({ loading }) => (
-                    <Button 
-                      variant="ghost" 
-                      className="w-full sm:w-auto font-bold" 
+                    <Button
+                      variant="ghost"
+                      className="w-full sm:w-auto font-bold"
                       disabled={loading}
                       onClick={() => setIsExportDialogOpen(false)}
                     >

@@ -22,7 +22,7 @@ export interface Project {
   quoteItems: QuoteItem[];
 }
 
-interface ProjectState {
+export interface ProjectState {
   projects: Project[];
   activeProjectId: string | null;
   actions: {

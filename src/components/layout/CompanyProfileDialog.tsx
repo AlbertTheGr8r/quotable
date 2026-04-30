@@ -49,16 +49,15 @@ export function CompanyProfileDialog({ trigger, onComplete }: CompanyProfileDial
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      setIsOpen(open);
-      if (!open && onComplete) onComplete();
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open && onComplete) onComplete();
+      }}
+    >
       <DialogTrigger
-        render={
-          trigger || (
-            <Button variant="outline" className="w-full justify-start text-xs h-8" size="sm" />
-          )
-        }
+        render={trigger || <Button variant="outline" className="w-full justify-start text-xs h-8" size="sm" />}
       >
         {!trigger && (
           <>

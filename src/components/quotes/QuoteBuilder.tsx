@@ -1,10 +1,9 @@
 "use client";
 
-import { Check, HelpCircle, Pencil, Plus, Share2, Trash2, ChevronDown, Upload } from "lucide-react";
-import { useState, useEffect, useRef, useId } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Check, ChevronDown, HelpCircle, Pencil, Plus, Share2, Trash2, Upload } from "lucide-react";
+import { nanoid } from "nanoid";
+import { useEffect, useId, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,19 +14,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { useYamlData } from "@/hooks/use-yaml-data";
-import { useProjectStore, ProjectCodec } from "@/stores/project-store";
-import { YamlStorage, type YamlRecord } from "@/lib/storage/idb";
+import { type YamlRecord, YamlStorage } from "@/lib/storage/idb";
+import { cn } from "@/lib/utils";
+import { useProjectStore } from "@/stores/project-store";
 import { QuoteCard } from "./QuoteCard";
 import { ServiceSelector } from "./ServiceSelector";
-import { cn } from "@/lib/utils";
-import { nanoid } from "nanoid";
 
 export function QuoteBuilder() {
   const { projects, activeProjectId, actions } = useProjectStore();
@@ -78,11 +79,8 @@ export function QuoteBuilder() {
 
   const handleShare = () => {
     if (project) {
-      const code = ProjectCodec.encode(project);
-      const url = new URL(window.location.href);
-      url.searchParams.set("p", code);
-      navigator.clipboard.writeText(url.toString());
-      alert("Project link copied to clipboard!");
+      navigator.clipboard.writeText(window.location.href);
+      toast("Project link copied to clipboard!");
     }
   };
 
@@ -93,10 +91,10 @@ export function QuoteBuilder() {
       const id = `custom-${nanoid()}`;
       const name = file.name.replace(".yaml", "").replace(".yml", "");
       await YamlStorage.saveYaml(id, name, text);
-      
+
       const updatedCustom = await YamlStorage.getAllYamls();
       setCustomRates(updatedCustom.slice(0, 3));
-      
+
       if (project) {
         actions.updateProject(project.id, { yamlUrl: `local://${id}` });
       }
@@ -137,7 +135,7 @@ export function QuoteBuilder() {
               </div>
             ) : (
               <h1 className="text-3xl font-bold tracking-tight truncate">
-                <button 
+                <button
                   type="button"
                   className="hover:text-primary transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                   onClick={handleStartEdit}
@@ -150,14 +148,14 @@ export function QuoteBuilder() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               className={cn(
                 "font-bold transition-all",
-                isEditingName 
-                  ? "border-success text-success hover:bg-success hover:text-success-foreground" 
-                  : "border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
+                isEditingName
+                  ? "border-success text-success hover:bg-success hover:text-success-foreground"
+                  : "border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground",
               )}
               onMouseDown={isEditingName ? (e) => e.preventDefault() : undefined}
               onClick={isEditingName ? handleSaveName : handleStartEdit}
@@ -172,10 +170,10 @@ export function QuoteBuilder() {
                 </>
               )}
             </Button>
-            
-            <Button 
-              size="sm" 
-              variant="outline" 
+
+            <Button
+              size="sm"
+              variant="outline"
               disabled={isEditingName}
               className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-bold transition-all"
               onClick={handleShare}
@@ -183,9 +181,9 @@ export function QuoteBuilder() {
               <Share2 className="h-4 w-4 mr-2" /> SHARE
             </Button>
 
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               disabled={isEditingName}
               className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground font-bold transition-all"
               onClick={() => setIsDeleteDialogOpen(true)}
@@ -200,7 +198,11 @@ export function QuoteBuilder() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground flex items-center gap-1" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  />
                 }
               >
                 <span>{rates?.meta.title || "Select rate schedule..."}</span>
@@ -209,42 +211,48 @@ export function QuoteBuilder() {
               <DropdownMenuContent align="start" className="w-64">
                 {customRates.length > 0 && (
                   <>
-                    <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">Custom YAMLs</div>
+                    <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      Custom YAMLs
+                    </div>
                     {customRates.map((r) => (
-                      <DropdownMenuItem 
-                        key={r.id} 
+                      <DropdownMenuItem
+                        key={r.id}
                         onClick={() => actions.updateProject(project.id, { yamlUrl: `local://${r.id}` })}
                       >
-                        <Check className={cn("h-4 w-4 mr-2 opacity-0", project.yamlUrl === `local://${r.id}` && "opacity-100")} />
+                        <Check
+                          className={cn(
+                            "h-4 w-4 mr-2 opacity-0",
+                            project.yamlUrl === `local://${r.id}` && "opacity-100",
+                          )}
+                        />
                         <span className="truncate">{r.name}</span>
                       </DropdownMenuItem>
                     ))}
                     <div className="h-px bg-muted my-1" />
                   </>
                 )}
-                
-                <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">System Rates</div>
+
+                <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  System Rates
+                </div>
                 {availableRates.map((r) => (
-                  <DropdownMenuItem 
-                    key={r.id} 
-                    onClick={() => actions.updateProject(project.id, { yamlUrl: r.url })}
-                  >
+                  <DropdownMenuItem key={r.id} onClick={() => actions.updateProject(project.id, { yamlUrl: r.url })}>
                     <Check className={cn("h-4 w-4 mr-2 opacity-0", project.yamlUrl === r.url && "opacity-100")} />
                     <span className="truncate">{r.title}</span>
                   </DropdownMenuItem>
                 ))}
-                
+
                 <div className="h-px bg-muted my-1" />
                 <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                   <Upload className="h-4 w-4 mr-2" />
                   <span>Import custom YAML...</span>
-                  <input 
+                  <input
                     ref={fileInputRef}
-                    id={yamlUploadId} 
-                    type="file" 
-                    accept=".yaml,.yml" 
-                    className="hidden" 
-                    onChange={handleFileUpload} 
+                    id={yamlUploadId}
+                    type="file"
+                    accept=".yaml,.yml"
+                    className="hidden"
+                    onChange={handleFileUpload}
                   />
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -267,7 +275,9 @@ export function QuoteBuilder() {
             }
           >
             <Plus className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="text-muted-foreground group-hover:text-primary font-medium transition-colors">Add Service</span>
+            <span className="text-muted-foreground group-hover:text-primary font-medium transition-colors">
+              Add Service
+            </span>
           </DialogTrigger>
           <DialogContent className="max-w-2xl p-0 overflow-hidden">
             <DialogHeader className="p-6 pb-0">
@@ -278,19 +288,18 @@ export function QuoteBuilder() {
         </Dialog>
       </div>
       <div className="h-32" /> {/* Spacer for scrollability */}
-
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the project "{project.name}" and all its quote items.
-              This action cannot be undone.
+              This will permanently delete the project "{project.name}" and all its quote items. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => {
                 actions.deleteProject(project.id);
                 setIsDeleteDialogOpen(false);

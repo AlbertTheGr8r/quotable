@@ -4,12 +4,14 @@ import { ChevronRight, Menu, Receipt } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useUrlSync } from "@/hooks/use-url-sync";
 import { cn } from "@/lib/utils";
 import { QuoteBuilder } from "../quotes/QuoteBuilder";
 import { ReceiptPanel } from "../receipt/ReceiptPanel";
 import { ProjectSidebar } from "./ProjectSidebar";
 
 export function Shell() {
+  useUrlSync();
   const [activeTab, setActiveTab] = useState<"quote" | "receipt">("quote");
 
   return (
