@@ -2,37 +2,7 @@ import { Money } from "./money";
 
 export { Money };
 
-import type { Service } from "../schema/rates";
-
-export interface LineItem {
-  id: string;
-  label: string;
-  quantity: number;
-  unit: string;
-  rate: number;
-  amount: number; // raw value
-  formattedAmount: string;
-}
-
-export interface ModifierResult {
-  id: string;
-  label: string;
-  optionLabel: string;
-  value: number; // percentage or multiplier
-  amount: number;
-  formattedAmount: string;
-}
-
-export interface ComputationResult {
-  serviceId: string;
-  baseLineItems: LineItem[];
-  subtotal: number;
-  modifiers: ModifierResult[];
-  total: number;
-  formattedSubtotal: string;
-  formattedTotal: string;
-  warnings: string[];
-}
+import type { Fee, LineItem, ModifierResult, ProjectCost, Service, ServiceCost } from "../schema/rates";
 
 /**
  * Phase 1: Compute Base Amount
@@ -49,18 +19,35 @@ export function computeBase(
     case "lookup_table":
       if (service.table) {
         const { table } = service;
+
+        let processQty = quantity;
+        if (table.selection_logic?.row === "nearest_integer") {
+          processQty = Math.round(processQty);
+        }
+
         // Determine column
-        const lookupQty =
-          table.excess_threshold && quantity > table.excess_threshold ? table.excess_threshold : quantity;
+        const cappedQty =
+          table.excess_threshold && processQty > table.excess_threshold ? table.excess_threshold : processQty;
 
-        const maxCol = Math.max(...table.columns);
-        let tens = Math.min(Math.floor(lookupQty / 10) * 10, maxCol);
-        let units = lookupQty - tens;
+        let tens: number;
+        let units: number;
 
-        // Handle exact multiples of 10 (e.g. 10ha -> tens=0, units=10)
-        if (units === 0 && tens >= 10) {
-          tens -= 10;
-          units = 10;
+        if (table.selection_logic?.column === "exact") {
+          if (!table.columns.includes(processQty)) {
+            throw new Error(`Exact column match required, but ${processQty} does not match any column.`);
+          }
+          tens = processQty;
+          units = processQty; // Required to allow row_logic to still match if needed
+        } else {
+          const maxCol = Math.max(...table.columns);
+          tens = Math.min(Math.floor(cappedQty / 10) * 10, maxCol);
+          units = cappedQty - tens;
+
+          // Handle exact multiples of 10 (e.g. 10ha -> tens=0, units=10)
+          if (units === 0 && tens >= 10) {
+            tens -= 10;
+            units = 10;
+          }
         }
 
         const colIndex = table.columns.indexOf(tens);
@@ -84,8 +71,8 @@ export function computeBase(
           subtotal = moneyAmount;
 
           // Handle excess
-          if (table.excess_rate && table.excess_threshold && quantity > table.excess_threshold) {
-            const excessQty = quantity - table.excess_threshold;
+          if (table.excess_rate && table.excess_threshold && processQty > table.excess_threshold) {
+            const excessQty = processQty - table.excess_threshold;
             const excessAmount = Money.fromDouble(table.excess_rate).multiply(excessQty);
             lineItems.push({
               id: "excess",
@@ -143,10 +130,10 @@ export function computeBase(
 
         // Get rates set based on params (e.g. contour interval)
         let rates: number[] = [];
-        if (tiered_per.parameters?.length) {
-          const param = tiered_per.parameters[0]; // assume one for now
-          const selectedOption = param.options.find((o) => o.id === params[param.id]);
-          rates = selectedOption?.rates || param.options[0].rates;
+        if (service.parameters?.length) {
+          const param = service.parameters[0]; // assume one for now
+          const selectedOption = param.options?.find((o) => o.id === params[param.id]);
+          rates = selectedOption?.rates || param.options?.[0].rates || [];
         } else {
           // No parameters, expect rates defined elsewhere or not applicable
         }
@@ -267,4 +254,152 @@ export function applyModifiers(
   }
 
   return { modifiers: modifierResults, total: currentTotal };
+}
+
+/**
+ * Phase 3: Service-Level Cost Aggregation
+ * Calculates the total cost for a single service, including base, modifiers, and service-level fees.
+ */
+export function computeServiceCost(
+  service: Service,
+  quantity: number,
+  options: {
+    parameters?: Record<string, string>;
+    modifiers?: Record<string, string>;
+  } = {},
+): ServiceCost {
+  const { parameters = {}, modifiers = {} } = options;
+
+  // 1. Base Cost
+  const { lineItems, subtotal } = computeBase(service, quantity, parameters);
+
+  // 2. Modifiers (Apply strictly to base subtotal)
+  const { modifiers: modifierResults, total: modifiedTotal } = applyModifiers(subtotal, service, modifiers);
+
+  // 3. Service-Level Additional Fees
+  const additionalCosts: Record<string, number> = {};
+  let totalWithFees = modifiedTotal;
+
+  if (service.additional_fees) {
+    for (const fee of service.additional_fees) {
+      let feeAmount = Money.zero();
+
+      switch (fee.type) {
+        case "flat":
+          feeAmount = Money.fromDouble(fee.value);
+          break;
+        case "percentage_of_base":
+          feeAmount = subtotal.multiply(fee.value);
+          break;
+        case "percentage_of_total":
+          feeAmount = modifiedTotal.multiply(fee.value);
+          break;
+        case "time_based":
+          break;
+      }
+
+      if (fee.minimum) {
+        const minMoney = Money.fromDouble(fee.minimum);
+        if (feeAmount.cents < minMoney.cents) {
+          feeAmount = minMoney;
+        }
+      }
+
+      const cat = fee.category || "misc";
+      additionalCosts[cat] = (additionalCosts[cat] || 0) + feeAmount.value;
+      totalWithFees = totalWithFees.add(feeAmount);
+    }
+  }
+
+  return {
+    serviceId: service.id,
+    baseLineItems: lineItems,
+    subtotal: subtotal.value,
+    modifiers: modifierResults,
+    additionalCosts: Object.keys(additionalCosts).length > 0 ? additionalCosts : undefined,
+    total: totalWithFees.value,
+    formattedSubtotal: subtotal.format(),
+    formattedTotal: totalWithFees.format(),
+    warnings: [], // Can implement warnings aggregation later
+  };
+}
+
+/**
+ * Phase 4: Project Cost Aggregation
+ * Aggregates multiple services and applies global project-level fees and taxes.
+ */
+export function computeProjectCost(
+  services: ServiceCost[],
+  projectFees: Fee[] = [],
+  projectTaxes: { vatRate?: number } = {},
+): ProjectCost {
+  let baseProjectCost = Money.zero();
+  let modifiedProjectCost = Money.zero();
+
+  // Sum up all service costs
+  for (const service of services) {
+    baseProjectCost = baseProjectCost.add(Money.fromDouble(service.subtotal));
+    modifiedProjectCost = modifiedProjectCost.add(Money.fromDouble(service.total));
+  }
+
+  // Merge service-level categorical breakdown (this is a descriptive merge, not a computational step)
+  const additionalCosts: Record<string, number> = {};
+  for (const service of services) {
+    if (service.additionalCosts) {
+      for (const [cat, value] of Object.entries(service.additionalCosts)) {
+        additionalCosts[cat] = (additionalCosts[cat] || 0) + value;
+      }
+    }
+  }
+
+  let totalProjectCost = modifiedProjectCost;
+
+  // Apply project-level fees in sorted order
+  const sortedFees = [...projectFees].sort((a, b) => (a.priority || 0) - (b.priority || 0));
+
+  for (const fee of sortedFees) {
+    let feeAmount = Money.zero();
+
+    switch (fee.type) {
+      case "flat":
+        feeAmount = Money.fromDouble(fee.value);
+        break;
+      case "percentage_of_base":
+        feeAmount = baseProjectCost.multiply(fee.value);
+        break;
+      case "percentage_of_total":
+        // At project level, base and total reference the aggregated service costs
+        feeAmount = totalProjectCost.multiply(fee.value);
+        break;
+      case "time_based":
+        break;
+    }
+
+    if (fee.minimum) {
+      const minMoney = Money.fromDouble(fee.minimum);
+      if (feeAmount.cents < minMoney.cents) {
+        feeAmount = minMoney;
+      }
+    }
+
+    const cat = fee.category || "misc";
+    additionalCosts[cat] = (additionalCosts[cat] || 0) + feeAmount.value;
+    totalProjectCost = totalProjectCost.add(feeAmount);
+  }
+
+  // 3. Apply Taxes
+  let vatAmount: number | undefined;
+  if (projectTaxes.vatRate) {
+    const vatMoney = totalProjectCost.multiply(projectTaxes.vatRate);
+    vatAmount = vatMoney.value;
+    totalProjectCost = totalProjectCost.add(vatMoney);
+  }
+
+  return {
+    services,
+    base_service_cost: baseProjectCost.value,
+    additional_costs: Object.keys(additionalCosts).length > 0 ? additionalCosts : undefined,
+    taxes: vatAmount !== undefined ? { vat: vatAmount } : undefined,
+    total_project_cost: totalProjectCost.value,
+  };
 }

@@ -6,9 +6,39 @@ export const ComputationStrategySchema = z.enum([
   "tiered_per_unit",
   "flat_per_unit",
   "flat",
+  "time_based",
 ]);
 
 export const ModifierTypeSchema = z.enum(["percentage_add", "multiplier", "flat_add"]);
+
+export const FeeCategorySchema = z.enum(["equipment", "mobilization", "travel", "supplies", "misc"]);
+
+export const FeeSchema = z
+  .object({
+    id: z.string(),
+    label: z.string(),
+    type: z.enum(["flat", "percentage_of_base", "percentage_of_total", "time_based"]),
+    category: FeeCategorySchema.default("misc"),
+    value: z.number(),
+    minimum: z.number().optional(),
+    priority: z.number().optional(),
+    conditions: z.array(z.string()).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type.includes("percentage") && (data.value < 0 || data.value > 1)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Percentage value must be between 0 and 1",
+        path: ["value"],
+      });
+    }
+  });
+
+export const ConditionRuleSchema = z.object({
+  id: z.string(),
+  description: z.string(),
+  condition: z.string(),
+});
 
 export const ModifierSchema = z.object({
   id: z.string(),
@@ -25,6 +55,12 @@ export const ModifierSchema = z.object({
 });
 
 export const LookupTableSchema = z.object({
+  selection_logic: z
+    .object({
+      row: z.enum(["nearest_integer", "range", "exact"]).default("range"),
+      column: z.enum(["floor_to_bracket", "exact"]).default("floor_to_bracket"),
+    })
+    .optional(),
   columns: z.array(z.number()), // e.g., tens: [0, 10, 20, 30, 40, 50, 60]
   rows: z.record(z.string(), z.array(z.number())), // row identifier (e.g., "6") -> values for each column
   row_logic: z.array(
@@ -78,6 +114,37 @@ export const FlatPerUnitSchema = z.object({
   rates: z.record(z.string(), z.number()), // sub-id -> rate per unit
 });
 
+export const TimeBasedSchema = z.object({
+  roles: z.record(z.string(), z.number()), // role -> hourly rate
+  minimum_hours: z.number().optional(),
+  overtime_rules: z
+    .array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        multiplier: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const ParameterSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  type: z.enum(["select", "number", "boolean"]),
+  options: z
+    .array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        rate: z.number().optional(),
+        rates: z.array(z.number()).optional(),
+        multiplier: z.number().optional(),
+      }),
+    )
+    .optional(),
+});
+
 export const ServiceSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -93,9 +160,23 @@ export const ServiceSchema = z.object({
   tiered_base: TieredBasePlusUnitSchema.optional(),
   tiered_per: TieredPerUnitSchema.optional(),
   flat_rates: FlatPerUnitSchema.optional(),
+  time_based: TimeBasedSchema.optional(),
   base_fee: z.number().optional(), // for 'flat' strategy
 
+  parameters: z.array(ParameterSchema).optional(),
   modifiers: z.array(ModifierSchema).optional(),
+  additional_fees: z.array(FeeSchema).optional(),
+  extra_cost_rules: z.array(ConditionRuleSchema).optional(),
+
+  composed_of: z
+    .array(
+      z.object({
+        service_id: z.string(),
+        type: z.enum(["required", "optional"]),
+      }),
+    )
+    .optional(),
+
   warnings: z.array(z.string()).optional(),
   cross_references: z
     .array(
@@ -136,7 +217,71 @@ export const RateFileSchema = z.object({
   uncategorized: z.array(ServiceSchema).optional(),
 });
 
+export const LineItemSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  quantity: z.number(),
+  unit: z.string(),
+  rate: z.number(),
+  amount: z.number(),
+  formattedAmount: z.string(),
+});
+
+export const ModifierResultSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  optionLabel: z.string(),
+  value: z.number(),
+  amount: z.number(),
+  formattedAmount: z.string(),
+});
+
+export const ServiceCostSchema = z.object({
+  serviceId: z.string(),
+  baseLineItems: z.array(LineItemSchema),
+  subtotal: z.number(),
+  modifiers: z.array(ModifierResultSchema),
+  additionalCosts: z.record(z.string(), z.number()).optional(),
+  total: z.number(),
+  formattedSubtotal: z.string(),
+  formattedTotal: z.string(),
+  warnings: z.array(z.string()),
+});
+
+export const ProjectCostSchema = z.object({
+  services: z.array(ServiceCostSchema),
+  base_service_cost: z.number(),
+  additional_costs: z
+    .object({
+      equipment: z.number().optional(),
+      mobilization: z.number().optional(),
+      travel: z.number().optional(),
+      supplies: z.number().optional(),
+      misc: z.number().optional(),
+    })
+    .optional(),
+  adjustments: z
+    .object({
+      contingency: z.number().optional(),
+      profit: z.number().optional(),
+      hazard: z.number().optional(),
+    })
+    .optional(),
+  taxes: z
+    .object({
+      vat: z.number(),
+    })
+    .optional(),
+  total_project_cost: z.number(),
+});
+
 export type RateFile = z.infer<typeof RateFileSchema>;
 export type Service = z.infer<typeof ServiceSchema>;
 export type Modifier = z.infer<typeof ModifierSchema>;
+export type FeeCategory = z.infer<typeof FeeCategorySchema>;
+export type Fee = z.infer<typeof FeeSchema>;
+export type LineItem = z.infer<typeof LineItemSchema>;
+export type ModifierResult = z.infer<typeof ModifierResultSchema>;
+export type ServiceCost = z.infer<typeof ServiceCostSchema>;
+export type ProjectCost = z.infer<typeof ProjectCostSchema>;
 export type ComputationStrategy = z.infer<typeof ComputationStrategySchema>;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Service } from "../../schema/rates";
-import { applyModifiers, computeBase } from "../index";
+import { computeServiceCost } from "../index";
 
 const lookupService: Service = {
   id: "relocation",
@@ -78,18 +78,18 @@ const tieredPerUnitService: Service = {
   unit: "ha",
   unit_display: "ha",
   strategy: "tiered_per_unit",
+  parameters: [
+    {
+      id: "contour",
+      label: "Contour",
+      type: "select",
+      options: [
+        { id: "0.5m", label: "0.5m", rates: [50000, 30000, 20000, 15000] },
+        { id: "1.0m", label: "1.0m", rates: [45000, 25000, 15000, 10000] },
+      ],
+    },
+  ],
   tiered_per: {
-    parameters: [
-      {
-        id: "contour",
-        label: "Contour",
-        type: "select",
-        options: [
-          { id: "0.5m", label: "0.5m", rates: [50000, 30000, 20000, 15000] },
-          { id: "1.0m", label: "1.0m", rates: [45000, 25000, 15000, 10000] },
-        ],
-      },
-    ],
     tiers: [
       { label: "First 1", up_to: 1 },
       { label: "Next 9", up_to: 10 },
@@ -116,58 +116,57 @@ const flatPerUnitService: Service = {
 
 describe("Computation Engine - Exact Match Tests", () => {
   test("lookup_table — 10 ha (bug fix)", () => {
-    const { subtotal } = computeBase(lookupService, 10, {});
-    expect(subtotal.cents).toBe(12000000); // ₱120,000
+    const { subtotal } = computeServiceCost(lookupService, 10, {});
+    expect(subtotal).toBe(120000); // ₱120,000
   });
 
   test("lookup_table — 26 ha, agricultural", () => {
-    const { subtotal } = computeBase(lookupService, 26, {});
-    expect(subtotal.cents).toBe(24700000); // ₱247,000
+    const { subtotal } = computeServiceCost(lookupService, 26, {});
+    expect(subtotal).toBe(247000); // ₱247,000
   });
 
   test("lookup_table — 0.5 ha", () => {
-    const { subtotal } = computeBase(lookupService, 0.5, {});
-    expect(subtotal.cents).toBe(3000000); // ₱30,000
+    const { subtotal } = computeServiceCost(lookupService, 0.5, {});
+    expect(subtotal).toBe(30000); // ₱30,000
   });
 
   test("lookup_table — 70 ha (last column)", () => {
-    const { subtotal } = computeBase(lookupService, 70, {});
-    expect(subtotal.cents).toBe(51150000); // ₱511,500
+    const { subtotal } = computeServiceCost(lookupService, 70, {});
+    expect(subtotal).toBe(511500); // ₱511,500
   });
 
   test("lookup_table — 71 ha (excess)", () => {
-    const { subtotal } = computeBase(lookupService, 71, {});
-    expect(subtotal.cents).toBe(51650000); // ₱511,500 + ₱5,000
+    const { subtotal } = computeServiceCost(lookupService, 71, {});
+    expect(subtotal).toBe(516500); // ₱511,500 + ₱5,000
   });
 
   test("lookup_table — land use commercial (+150%)", () => {
-    const { subtotal } = computeBase(lookupService, 10, {});
-    const { total } = applyModifiers(subtotal, lookupService, { "land-use": "commercial" });
-    expect(total.cents).toBe(30000000); // ₱120,000 + ₱180,000
+    const { total } = computeServiceCost(lookupService, 10, { modifiers: { "land-use": "commercial" } });
+    expect(total).toBe(300000); // ₱120,000 + ₱180,000
   });
 
   test("tiered_base_plus_unit — 45 lots", () => {
-    const { subtotal } = computeBase(tieredBaseService, 45, {});
+    const { subtotal } = computeServiceCost(tieredBaseService, 45, {});
     // range 20-49: base 218000, per_unit 11000, excess_above 20
     // 218000 + (45 - 20) * 11000 = 218000 + 275000 = 493000
-    expect(subtotal.cents).toBe(49300000); // ₱493,000
+    expect(subtotal).toBe(493000); // ₱493,000
   });
 
   test("tiered_per_unit — 26 ha @1.0m contour", () => {
-    const { subtotal } = computeBase(tieredPerUnitService, 26, { contour: "1.0m" });
+    const { subtotal } = computeServiceCost(tieredPerUnitService, 26, { parameters: { contour: "1.0m" } });
     // 1*45000 + 9*25000 + 10*15000 + 6*10000 = 45000 + 225000 + 150000 + 60000 = 480000
-    expect(subtotal.cents).toBe(48000000); // ₱480,000
+    expect(subtotal).toBe(480000); // ₱480,000
   });
 
   test("tiered_per_unit — 1 ha (minimum fee)", () => {
-    const { subtotal } = computeBase(tieredPerUnitService, 1, { contour: "0.5m" });
+    const { subtotal } = computeServiceCost(tieredPerUnitService, 1, { parameters: { contour: "0.5m" } });
     // 1*50000
-    expect(subtotal.cents).toBe(5000000); // ₱50,000
+    expect(subtotal).toBe(50000); // ₱50,000
   });
 
   test("flat_per_unit — road_centerline x 5 km", () => {
-    const { subtotal } = computeBase(flatPerUnitService, 5, { road_centerline: "true" });
+    const { subtotal } = computeServiceCost(flatPerUnitService, 5, { parameters: { road_centerline: "true" } });
     // 5 * 40000
-    expect(subtotal.cents).toBe(20000000); // ₱200,000
+    expect(subtotal).toBe(200000); // ₱200,000
   });
 });

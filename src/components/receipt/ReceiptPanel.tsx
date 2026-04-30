@@ -17,9 +17,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useYamlData } from "@/hooks/use-yaml-data";
-import { applyModifiers, computeBase, type LineItem, type ModifierResult } from "@/lib/engine";
+import { applyModifiers, computeBase } from "@/lib/engine";
 import { Money } from "@/lib/engine/money";
-import type { Service } from "@/lib/schema/rates";
+import type { LineItem, ModifierResult, Service } from "@/lib/schema/rates";
 import { LogoStorage } from "@/lib/storage/idb";
 import { cn } from "@/lib/utils";
 import { useCompanyStore } from "@/stores/company-store";
@@ -277,7 +277,9 @@ export function ReceiptPanel() {
               </AlertDialogCancel>
               {isClient && (
                 <PDFDownloadLink
-                  document={<QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />}
+                  document={
+                    <QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />
+                  }
                   fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
                 >
                   {({ loading }) => (

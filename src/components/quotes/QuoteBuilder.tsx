@@ -185,7 +185,7 @@ export function QuoteBuilder() {
               size="sm"
               variant="outline"
               disabled={isEditingName}
-              className="border-destructive/50 text-destructive hover:!bg-destructive hover:!text-destructive-foreground dark:hover:!bg-destructive dark:hover:!text-destructive-foreground font-bold transition-all"
+              className="border-destructive/50 text-destructive hover:bg-destructive! hover:text-destructive-foreground! dark:hover:bg-destructive! dark:hover:text-destructive-foreground! font-bold transition-all"
               onClick={() => setIsDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2 group-hover:text-destructive-foreground" /> Delete
