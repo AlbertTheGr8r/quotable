@@ -42,9 +42,9 @@ export class Money {
     return new Money(this.amount + this.amount * percentage);
   }
 
-  format(currency = 'PHP'): string {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
+  format(currency = "PHP"): string {
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
       currency,
     }).format(this.value);
   }

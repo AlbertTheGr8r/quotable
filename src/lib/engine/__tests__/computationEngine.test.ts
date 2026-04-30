@@ -1,14 +1,14 @@
-import { expect, test, describe } from 'vitest';
-import { ComputationEngine } from '../index';
-import type { Service } from '../../schema/rates';
+import { describe, expect, test } from "vitest";
+import type { Service } from "../../schema/rates";
+import { ComputationEngine } from "../index";
 
 const lookupService: Service = {
-  id: 'relocation',
-  label: 'Relocation',
-  unit_type: 'area',
-  unit: 'ha',
-  unit_display: 'ha',
-  strategy: 'lookup_table',
+  id: "relocation",
+  label: "Relocation",
+  unit_type: "area",
+  unit: "ha",
+  unit_display: "ha",
+  strategy: "lookup_table",
   table: {
     columns: [0, 10, 20, 30, 40, 50, 60],
     row_logic: [
@@ -42,133 +42,131 @@ const lookupService: Service = {
   },
   modifiers: [
     {
-      id: 'land-use',
-      label: 'Land Use',
-      type: 'percentage_add',
+      id: "land-use",
+      label: "Land Use",
+      type: "percentage_add",
       options: [
-        { id: 'agricultural', label: 'Agri', value: 0 },
-        { id: 'commercial', label: 'Comm', value: 1.5 },
+        { id: "agricultural", label: "Agri", value: 0 },
+        { id: "commercial", label: "Comm", value: 1.5 },
       ],
-      default_option_id: 'agricultural'
-    }
-  ]
+      default_option_id: "agricultural",
+    },
+  ],
 };
 
 const tieredBaseService: Service = {
-  id: 'subdivision',
-  label: 'Subdivision',
-  unit_type: 'count',
-  unit: 'lot',
-  unit_display: 'lots',
-  strategy: 'tiered_base_plus_unit',
+  id: "subdivision",
+  label: "Subdivision",
+  unit_type: "count",
+  unit: "lot",
+  unit_display: "lots",
+  strategy: "tiered_base_plus_unit",
   tiered_base: {
     tiers: [
       { range: [2, 4], base: 38000, per_unit: 12000, excess_above: 2 },
       { range: [5, 9], base: 62000, per_unit: 11500, excess_above: 5 },
       { range: [10, 19], base: 108000, per_unit: 11000, excess_above: 10 },
       { range: [20, 49], base: 218000, per_unit: 11000, excess_above: 20 },
-    ]
-  }
+    ],
+  },
 };
 
 const tieredPerUnitService: Service = {
-  id: 'topo',
-  label: 'Topo',
-  unit_type: 'area',
-  unit: 'ha',
-  unit_display: 'ha',
-  strategy: 'tiered_per_unit',
+  id: "topo",
+  label: "Topo",
+  unit_type: "area",
+  unit: "ha",
+  unit_display: "ha",
+  strategy: "tiered_per_unit",
   tiered_per: {
     parameters: [
       {
-        id: 'contour',
-        label: 'Contour',
-        type: 'select',
+        id: "contour",
+        label: "Contour",
+        type: "select",
         options: [
-          { id: '0.5m', label: '0.5m', rates: [50000, 30000, 20000, 15000] },
-          { id: '1.0m', label: '1.0m', rates: [45000, 25000, 15000, 10000] },
-        ]
-      }
+          { id: "0.5m", label: "0.5m", rates: [50000, 30000, 20000, 15000] },
+          { id: "1.0m", label: "1.0m", rates: [45000, 25000, 15000, 10000] },
+        ],
+      },
     ],
     tiers: [
-      { label: 'First 1', up_to: 1 },
-      { label: 'Next 9', up_to: 10 },
-      { label: 'Next 10', up_to: 20 },
-      { label: 'Excess', up_to: null },
-    ]
-  }
+      { label: "First 1", up_to: 1 },
+      { label: "Next 9", up_to: 10 },
+      { label: "Next 10", up_to: 20 },
+      { label: "Excess", up_to: null },
+    ],
+  },
 };
 
 const flatPerUnitService: Service = {
-  id: 'route',
-  label: 'Route',
-  unit_type: 'length',
-  unit: 'km',
-  unit_display: 'km',
-  strategy: 'flat_per_unit',
+  id: "route",
+  label: "Route",
+  unit_type: "length",
+  unit: "km",
+  unit_display: "km",
+  strategy: "flat_per_unit",
   flat_rates: {
     rates: {
       road_centerline: 40000,
-      parcellary: 180000
-    }
-  }
+      parcellary: 180000,
+    },
+  },
 };
 
-
-describe('Computation Engine - Exact Match Tests', () => {
-
-  test('lookup_table — 10 ha (bug fix)', () => {
+describe("Computation Engine - Exact Match Tests", () => {
+  test("lookup_table — 10 ha (bug fix)", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 10, {});
     expect(subtotal.cents).toBe(12000000); // ₱120,000
   });
 
-  test('lookup_table — 26 ha, agricultural', () => {
+  test("lookup_table — 26 ha, agricultural", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 26, {});
     expect(subtotal.cents).toBe(24700000); // ₱247,000
   });
 
-  test('lookup_table — 0.5 ha', () => {
+  test("lookup_table — 0.5 ha", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 0.5, {});
     expect(subtotal.cents).toBe(3000000); // ₱30,000
   });
 
-  test('lookup_table — 70 ha (last column)', () => {
+  test("lookup_table — 70 ha (last column)", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 70, {});
     expect(subtotal.cents).toBe(51150000); // ₱511,500
   });
 
-  test('lookup_table — 71 ha (excess)', () => {
+  test("lookup_table — 71 ha (excess)", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 71, {});
     expect(subtotal.cents).toBe(51650000); // ₱511,500 + ₱5,000
   });
 
-  test('lookup_table — land use commercial (+150%)', () => {
+  test("lookup_table — land use commercial (+150%)", () => {
     const { subtotal } = ComputationEngine.computeBase(lookupService, 10, {});
-    const { total } = ComputationEngine.applyModifiers(subtotal, lookupService, { 'land-use': 'commercial' });
+    const { total } = ComputationEngine.applyModifiers(subtotal, lookupService, { "land-use": "commercial" });
     expect(total.cents).toBe(30000000); // ₱120,000 + ₱180,000
   });
 
-  test('tiered_base_plus_unit — 45 lots', () => {
+  test("tiered_base_plus_unit — 45 lots", () => {
     const { subtotal } = ComputationEngine.computeBase(tieredBaseService, 45, {});
     // range 20-49: base 218000, per_unit 11000, excess_above 20
     // 218000 + (45 - 20) * 11000 = 218000 + 275000 = 493000
     expect(subtotal.cents).toBe(49300000); // ₱493,000
   });
 
-  test('tiered_per_unit — 26 ha @1.0m contour', () => {
-    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 26, { contour: '1.0m' });
+  test("tiered_per_unit — 26 ha @1.0m contour", () => {
+    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 26, { contour: "1.0m" });
     // 1*45000 + 9*25000 + 10*15000 + 6*10000 = 45000 + 225000 + 150000 + 60000 = 480000
     expect(subtotal.cents).toBe(48000000); // ₱480,000
   });
 
-  test('tiered_per_unit — 1 ha (minimum fee)', () => {
-    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 1, { contour: '0.5m' });
+  test("tiered_per_unit — 1 ha (minimum fee)", () => {
+    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 1, { contour: "0.5m" });
     // 1*50000
     expect(subtotal.cents).toBe(5000000); // ₱50,000
   });
 
-  test('flat_per_unit — road_centerline x 5 km', () => {
-    const { subtotal } = ComputationEngine.computeBase(flatPerUnitService, 5, { road_centerline: 'true' });
+  test("flat_per_unit — road_centerline x 5 km", () => {
+    const { subtotal } = ComputationEngine.computeBase(flatPerUnitService, 5, { road_centerline: "true" });
     // 5 * 40000
     expect(subtotal.cents).toBe(20000000); // ₱200,000
   });

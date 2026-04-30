@@ -1,6 +1,8 @@
-import { Money } from './money';
+import { Money } from "./money";
+
 export { Money };
-import type { Service } from '../schema/rates';
+
+import type { Service } from "../schema/rates";
 
 export interface LineItem {
   id: string;
@@ -39,19 +41,18 @@ export class ComputationEngine {
   static computeBase(
     service: Service,
     quantity: number,
-    params: Record<string, string> = {}
+    params: Record<string, string> = {},
   ): { lineItems: LineItem[]; subtotal: Money } {
     let subtotal = Money.zero();
     const lineItems: LineItem[] = [];
 
     switch (service.strategy) {
-      case 'lookup_table':
+      case "lookup_table":
         if (service.table) {
           const { table } = service;
           // Determine column
-          const lookupQty = (table.excess_threshold && quantity > table.excess_threshold) 
-            ? table.excess_threshold 
-            : quantity;
+          const lookupQty =
+            table.excess_threshold && quantity > table.excess_threshold ? table.excess_threshold : quantity;
 
           const maxCol = Math.max(...table.columns);
           let tens = Math.min(Math.floor(lookupQty / 10) * 10, maxCol);
@@ -66,19 +67,17 @@ export class ComputationEngine {
           const colIndex = table.columns.indexOf(tens);
 
           // Find row id
-          const rowLogic = table.row_logic.find(
-            (r) => units >= r.min && units <= r.max
-          );
-          
+          const rowLogic = table.row_logic.find((r) => units >= r.min && units <= r.max);
+
           if (colIndex !== -1 && rowLogic) {
             const baseAmount = table.rows[rowLogic.id][colIndex];
             const moneyAmount = Money.fromDouble(baseAmount);
-            
+
             lineItems.push({
-              id: 'base',
+              id: "base",
               label: `${service.label} (${quantity} ${service.unit_display})`,
               quantity: 1,
-              unit: 'job',
+              unit: "job",
               rate: baseAmount,
               amount: moneyAmount.value,
               formattedAmount: moneyAmount.format(),
@@ -90,7 +89,7 @@ export class ComputationEngine {
               const excessQty = quantity - table.excess_threshold;
               const excessAmount = Money.fromDouble(table.excess_rate).multiply(excessQty);
               lineItems.push({
-                id: 'excess',
+                id: "excess",
                 label: `Excess Area (${excessQty} ${service.unit_display})`,
                 quantity: excessQty,
                 unit: service.unit,
@@ -104,27 +103,27 @@ export class ComputationEngine {
         }
         break;
 
-      case 'tiered_base_plus_unit':
+      case "tiered_base_plus_unit":
         if (service.tiered_base) {
           const tier = service.tiered_base.tiers.find(
-            (t) => quantity >= t.range[0] && (t.range[1] === null || quantity <= t.range[1])
+            (t) => quantity >= t.range[0] && (t.range[1] === null || quantity <= t.range[1]),
           );
           if (tier) {
             const baseMoney = Money.fromDouble(tier.base);
             lineItems.push({
-              id: 'base',
-              label: `Base fee (${tier.range[0]}-${tier.range[1] || 'up'} ${service.unit_display})`,
+              id: "base",
+              label: `Base fee (${tier.range[0]}-${tier.range[1] || "up"} ${service.unit_display})`,
               quantity: 1,
-              unit: 'base',
+              unit: "base",
               rate: tier.base,
               amount: baseMoney.value,
               formattedAmount: baseMoney.format(),
             });
-            
+
             const excessQty = Math.max(0, quantity - tier.excess_above);
             const excessMoney = Money.fromDouble(tier.per_unit).multiply(excessQty);
             lineItems.push({
-              id: 'per-unit',
+              id: "per-unit",
               label: `Per ${service.unit} in excess of ${tier.excess_above}`,
               quantity: excessQty,
               unit: service.unit,
@@ -137,17 +136,17 @@ export class ComputationEngine {
         }
         break;
 
-      case 'tiered_per_unit':
+      case "tiered_per_unit":
         if (service.tiered_per) {
           const { tiered_per } = service;
           let remaining = quantity;
           let prevThreshold = 0;
-          
+
           // Get rates set based on params (e.g. contour interval)
           let rates: number[] = [];
           if (tiered_per.parameters?.length) {
             const param = tiered_per.parameters[0]; // assume one for now
-            const selectedOption = param.options.find(o => o.id === params[param.id]);
+            const selectedOption = param.options.find((o) => o.id === params[param.id]);
             rates = selectedOption?.rates || param.options[0].rates;
           } else {
             // No parameters, expect rates defined elsewhere or not applicable
@@ -158,7 +157,7 @@ export class ComputationEngine {
             const rate = rates[i] || 0;
             const threshold = tier.up_to === null ? Infinity : tier.up_to;
             const tierQty = Math.min(remaining, threshold - prevThreshold);
-            
+
             if (tierQty > 0) {
               const tierMoney = Money.fromDouble(rate).multiply(tierQty);
               lineItems.push({
@@ -172,7 +171,7 @@ export class ComputationEngine {
               });
               subtotal = subtotal.add(tierMoney);
             }
-            
+
             remaining -= tierQty;
             prevThreshold = threshold;
             if (remaining <= 0) break;
@@ -180,16 +179,16 @@ export class ComputationEngine {
         }
         break;
 
-      case 'flat_per_unit':
+      case "flat_per_unit":
         if (service.flat_rates) {
           // Flat rates usually implies checkboxes for different sub-items
           // params[subItem.id] = 'true'
           for (const [id, rate] of Object.entries(service.flat_rates.rates)) {
-            if (params[id] === 'true') {
+            if (params[id] === "true") {
               const itemMoney = Money.fromDouble(rate).multiply(quantity);
               lineItems.push({
                 id,
-                label: id.replace(/_/g, ' ').toUpperCase(),
+                label: id.replace(/_/g, " ").toUpperCase(),
                 quantity,
                 unit: service.unit,
                 rate,
@@ -202,14 +201,14 @@ export class ComputationEngine {
         }
         break;
 
-      case 'flat':
+      case "flat":
         if (service.base_fee) {
           const fee = Money.fromDouble(service.base_fee);
           lineItems.push({
-            id: 'base',
+            id: "base",
             label: service.label,
             quantity: 1,
-            unit: 'flat',
+            unit: "flat",
             rate: service.base_fee,
             amount: fee.value,
             formattedAmount: fee.format(),
@@ -228,7 +227,7 @@ export class ComputationEngine {
   static applyModifiers(
     subtotal: Money,
     service: Service,
-    selectedOptions: Record<string, string> // modifierId -> optionId
+    selectedOptions: Record<string, string>, // modifierId -> optionId
   ): { modifiers: ModifierResult[]; total: Money } {
     let currentTotal = subtotal;
     const modifierResults: ModifierResult[] = [];
@@ -237,24 +236,24 @@ export class ComputationEngine {
       for (const modifier of service.modifiers) {
         const selectedId = selectedOptions[modifier.id] || modifier.default_option_id;
         const option = modifier.options.find((o) => o.id === selectedId);
-        
+
         if (option && option.value !== 0) {
           let modAmount = Money.zero();
-          
+
           switch (modifier.type) {
-            case 'percentage_add':
+            case "percentage_add":
               modAmount = subtotal.multiply(option.value);
               break;
-            case 'multiplier':
+            case "multiplier":
               // Multiplier applied to "current" total or original subtotal?
               // User said "multiplier (x1.5)". Usually applied to base.
               modAmount = subtotal.multiply(option.value - 1);
               break;
-            case 'flat_add':
+            case "flat_add":
               modAmount = new Money(option.value); // option.value should be in cents
               break;
           }
-          
+
           currentTotal = currentTotal.add(modAmount);
           modifierResults.push({
             id: modifier.id,

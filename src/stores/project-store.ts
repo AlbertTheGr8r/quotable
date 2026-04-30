@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { nanoid } from 'nanoid';
+import { nanoid } from "nanoid";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface QuoteItem {
   id: string;
@@ -30,7 +30,7 @@ interface ProjectState {
     deleteProject: (id: string) => void;
     updateProject: (id: string, updates: Partial<Project>) => void;
     setActiveProject: (id: string | null) => void;
-    addQuoteItem: (projectId: string, item: Omit<QuoteItem, 'id'>) => void;
+    addQuoteItem: (projectId: string, item: Omit<QuoteItem, "id">) => void;
     removeQuoteItem: (projectId: string, itemId: string) => void;
     updateQuoteItem: (projectId: string, itemId: string, updates: Partial<QuoteItem>) => void;
   };
@@ -65,7 +65,7 @@ export const useProjectStore = create<ProjectState>()(
         updateProject: (id, updates) => {
           set((state) => ({
             projects: state.projects.map((p) =>
-              p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
+              p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p,
             ),
           }));
         },
@@ -79,7 +79,7 @@ export const useProjectStore = create<ProjectState>()(
                     quoteItems: [...p.quoteItems, { ...item, id: nanoid() }],
                     updatedAt: new Date().toISOString(),
                   }
-                : p
+                : p,
             ),
           }));
         },
@@ -92,7 +92,7 @@ export const useProjectStore = create<ProjectState>()(
                     quoteItems: p.quoteItems.filter((i) => i.id !== itemId),
                     updatedAt: new Date().toISOString(),
                   }
-                : p
+                : p,
             ),
           }));
         },
@@ -102,26 +102,24 @@ export const useProjectStore = create<ProjectState>()(
               p.id === projectId
                 ? {
                     ...p,
-                    quoteItems: p.quoteItems.map((i) =>
-                      i.id === itemId ? { ...i, ...updates } : i
-                    ),
+                    quoteItems: p.quoteItems.map((i) => (i.id === itemId ? { ...i, ...updates } : i)),
                     updatedAt: new Date().toISOString(),
                   }
-                : p
+                : p,
             ),
           }));
         },
       },
     }),
     {
-      name: 'quotable-projects',
+      name: "quotable-projects",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         projects: state.projects,
         activeProjectId: state.activeProjectId,
       }),
-    }
-  )
+    },
+  ),
 );
 
 /**
@@ -133,8 +131,8 @@ export const ProjectCodec = {
       const json = JSON.stringify(project);
       return btoa(unescape(encodeURIComponent(json)));
     } catch (e) {
-      console.error('Failed to encode project', e);
-      return '';
+      console.error("Failed to encode project", e);
+      return "";
     }
   },
   decode: (blob: string): Project | null => {
@@ -142,7 +140,7 @@ export const ProjectCodec = {
       const json = decodeURIComponent(escape(atob(blob)));
       return JSON.parse(json);
     } catch (e) {
-      console.error('Failed to decode project', e);
+      console.error("Failed to decode project", e);
       return null;
     }
   },

@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from 'react';
-import { useProjectStore } from '@/stores/project-store';
-import { useYamlData } from '@/hooks/use-yaml-data';
-import { Button } from '@/components/ui/button';
-import { Plus, HelpCircle } from 'lucide-react';
-import { QuoteCard } from './QuoteCard';
-import { ServiceSelector } from './ServiceSelector';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { HelpCircle, Plus } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useYamlData } from "@/hooks/use-yaml-data";
+import { useProjectStore } from "@/stores/project-store";
+import { QuoteCard } from "./QuoteCard";
+import { ServiceSelector } from "./ServiceSelector";
 
 export function QuoteBuilder() {
   const { projects, activeProjectId } = useProjectStore();
-  const project = projects.find(p => p.id === activeProjectId);
-  const { data: rates, loading } = useYamlData(project?.yamlUrl || '');
+  const project = projects.find((p) => p.id === activeProjectId);
+  const { data: rates } = useYamlData(project?.yamlUrl || "");
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   if (!project) {
@@ -32,17 +32,16 @@ export function QuoteBuilder() {
       <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{rates?.meta.title || 'Loading rate schedule...'}</span>
+          <span>{rates?.meta.title || "Loading rate schedule..."}</span>
         </div>
       </header>
-
       <div className="flex flex-col gap-6">
         {project.quoteItems.map((item) => (
           <QuoteCard key={item.id} project={project} item={item} rates={rates} />
         ))}
 
         <Dialog open={isSelectorOpen} onOpenChange={setIsSelectorOpen}>
-          <DialogTrigger 
+          <DialogTrigger
             render={
               <Button
                 variant="outline"
@@ -57,15 +56,10 @@ export function QuoteBuilder() {
             <DialogHeader className="p-6 pb-0">
               <DialogTitle>Add a Service</DialogTitle>
             </DialogHeader>
-            <ServiceSelector 
-              rates={rates} 
-              onSelect={() => setIsSelectorOpen(false)} 
-              projectId={project.id}
-            />
+            <ServiceSelector rates={rates} onSelect={() => setIsSelectorOpen(false)} projectId={project.id} />
           </DialogContent>
         </Dialog>
       </div>
-      
       <div className="h-32" /> {/* Spacer for scrollability */}
     </div>
   );

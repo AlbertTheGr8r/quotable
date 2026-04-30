@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo } from 'react';
-import { useProjectStore, type QuoteItem, type Project } from '@/stores/project-store';
-import type { RateFile, Service } from '@/lib/schema/rates';
-import { ComputationEngine } from '@/lib/engine';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { Trash2 } from "lucide-react";
+import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ComputationEngine } from "@/lib/engine";
+import type { RateFile, Service } from "@/lib/schema/rates";
+import { type Project, type QuoteItem, useProjectStore } from "@/stores/project-store";
 
 interface QuoteCardProps {
   project: Project;
@@ -18,12 +18,12 @@ interface QuoteCardProps {
 
 export function QuoteCard({ project, item, rates }: QuoteCardProps) {
   const { actions } = useProjectStore();
-  
+
   const service = useMemo(() => {
     if (!rates) return null;
     let found: Service | undefined;
     for (const cat of rates.categories) {
-      found = cat.services.find(s => s.id === item.serviceId);
+      found = cat.services.find((s) => s.id === item.serviceId);
       if (found) break;
     }
     return found;
@@ -33,12 +33,12 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
     if (!service) return null;
     const { lineItems, subtotal } = ComputationEngine.computeBase(service, item.quantity, item.params);
     const { modifiers, total } = ComputationEngine.applyModifiers(subtotal, service, item.modifiers);
-    
+
     return {
       subtotal: subtotal.format(),
       total: total.format(),
       lineItems,
-      modifiers
+      modifiers,
     };
   }, [service, item.quantity, item.params, item.modifiers]);
 
@@ -49,64 +49,77 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
       <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-lg">{service.label}</CardTitle>
-          <div className="text-[10px] uppercase font-bold text-muted-foreground">{service.unit_display.toUpperCase()}</div>
+          <div className="text-[10px] uppercase font-bold text-muted-foreground">
+            {service.unit_display.toUpperCase()}
+          </div>
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="text-destructive hover:text-destructive hover:bg-destructive/10"
           onClick={() => actions.removeQuoteItem(project.id, item.id)}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardHeader>
-      
+
       <CardContent className="p-4 pt-0 flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
-          {service.strategy !== 'flat' && (
+          {service.strategy !== "flat" && (
             <div className="flex flex-col gap-2">
               <Label className="text-xs">Quantity ({service.unit_display})</Label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 value={item.quantity}
-                onChange={(e) => actions.updateQuoteItem(project.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  actions.updateQuoteItem(project.id, item.id, { quantity: parseFloat(e.target.value) || 0 })
+                }
               />
             </div>
           )}
-          
-          {service.strategy === 'tiered_per_unit' && service.tiered_per?.parameters?.map(param => (
-            <div key={param.id} className="flex flex-col gap-2">
-              <Label className="text-xs">{param.label}</Label>
-              <select 
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                value={item.params[param.id] || ''}
-                onChange={(e) => actions.updateQuoteItem(project.id, item.id, { 
-                  params: { ...item.params, [param.id]: e.target.value } 
-                })}
-              >
-                {param.options.map(opt => (
-                  <option key={opt.id} value={opt.id}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          ))}
 
-          {service.strategy === 'flat_per_unit' && service.flat_rates && (
+          {service.strategy === "tiered_per_unit" &&
+            service.tiered_per?.parameters?.map((param) => (
+              <div key={param.id} className="flex flex-col gap-2">
+                <Label className="text-xs">{param.label}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={item.params[param.id] || ""}
+                  onChange={(e) =>
+                    actions.updateQuoteItem(project.id, item.id, {
+                      params: { ...item.params, [param.id]: e.target.value },
+                    })
+                  }
+                >
+                  {param.options.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+
+          {service.strategy === "flat_per_unit" && service.flat_rates && (
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-muted/20 rounded-md">
-              <h5 className="col-span-full text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Sub-Items</h5>
+              <h5 className="col-span-full text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Sub-Items
+              </h5>
               {Object.entries(service.flat_rates.rates).map(([id, rate]) => (
                 <div key={id} className="flex items-center gap-2">
-                  <input 
+                  <input
                     type="checkbox"
                     id={`${item.id}-${id}`}
                     className="rounded border-input text-primary"
-                    checked={item.params[id] === 'true'}
-                    onChange={(e) => actions.updateQuoteItem(project.id, item.id, {
-                      params: { ...item.params, [id]: e.target.checked ? 'true' : 'false' }
-                    })}
+                    checked={item.params[id] === "true"}
+                    onChange={(e) =>
+                      actions.updateQuoteItem(project.id, item.id, {
+                        params: { ...item.params, [id]: e.target.checked ? "true" : "false" },
+                      })
+                    }
                   />
                   <Label htmlFor={`${item.id}-${id}`} className="text-xs cursor-pointer flex-1">
-                    {id.replace(/_/g, ' ').toUpperCase()} (₱{rate.toLocaleString()})
+                    {id.replace(/_/g, " ").toUpperCase()} (₱{rate.toLocaleString()})
                   </Label>
                 </div>
               ))}
@@ -118,18 +131,22 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
           <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-md">
             <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Adjustments</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {service.modifiers.map(mod => (
+              {service.modifiers.map((mod) => (
                 <div key={mod.id} className="flex flex-col gap-1.5">
                   <Label className="text-xs">{mod.label}</Label>
-                  <select 
+                  <select
                     className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-0 text-xs focus-visible:outline-none"
-                    value={item.modifiers[mod.id] || mod.default_option_id || ''}
-                    onChange={(e) => actions.updateQuoteItem(project.id, item.id, { 
-                      modifiers: { ...item.modifiers, [mod.id]: e.target.value } 
-                    })}
+                    value={item.modifiers[mod.id] || mod.default_option_id || ""}
+                    onChange={(e) =>
+                      actions.updateQuoteItem(project.id, item.id, {
+                        modifiers: { ...item.modifiers, [mod.id]: e.target.value },
+                      })
+                    }
                   >
-                    {mod.options.map(opt => (
-                      <option key={opt.id} value={opt.id}>{opt.label} ({mod.type === 'percentage_add' ? `+${opt.value * 100}%` : `x${opt.value}`})</option>
+                    {mod.options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.label} ({mod.type === "percentage_add" ? `+${opt.value * 100}%` : `x${opt.value}`})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -147,7 +164,7 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
             ))}
           </div>
         )}
-        
+
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed">
           <span className="text-xs font-medium text-muted-foreground">Service Total</span>
           <span className="font-bold text-lg">{result.total}</span>

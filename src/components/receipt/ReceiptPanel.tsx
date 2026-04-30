@@ -1,27 +1,27 @@
 "use client";
 
-import { useMemo, useState, useEffect } from 'react';
-import { useProjectStore } from '@/stores/project-store';
-import { useYamlData } from '@/hooks/use-yaml-data';
-import { ComputationEngine, type LineItem, type ModifierResult } from '@/lib/engine';
-import { Money } from '@/lib/engine/money';
-import type { Service } from '@/lib/schema/rates';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Receipt, FileText, Download } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { QuotePDF } from './QuotePDF';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import { useCompanyStore } from '@/stores/company-store';
-import { LogoStorage } from '@/lib/storage/idb';
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { Download, FileText, Receipt } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { useYamlData } from "@/hooks/use-yaml-data";
+import { ComputationEngine, type LineItem, type ModifierResult } from "@/lib/engine";
+import { Money } from "@/lib/engine/money";
+import type { Service } from "@/lib/schema/rates";
+import { LogoStorage } from "@/lib/storage/idb";
+import { cn } from "@/lib/utils";
+import { useCompanyStore } from "@/stores/company-store";
+import { useProjectStore } from "@/stores/project-store";
+import { QuotePDF } from "./QuotePDF";
 
 export function ReceiptPanel() {
   const { projects, activeProjectId } = useProjectStore();
-  const project = projects.find(p => p.id === activeProjectId);
-  const { data: rates } = useYamlData(project?.yamlUrl || '');
-  
+  const project = projects.find((p) => p.id === activeProjectId);
+  const { data: rates } = useYamlData(project?.yamlUrl || "");
+
   const [showWorksheet, setShowWorksheet] = useState(false);
   const [includeVat, setIncludeVat] = useState(true);
   const [isClient, setIsClient] = useState(false);
@@ -30,11 +30,13 @@ export function ReceiptPanel() {
 
   useEffect(() => {
     setIsClient(true);
-    
+  }, []);
+
+  useEffect(() => {
     // Fetch logo
     let currentUrl: string | null = null;
     if (profile.logoId) {
-      LogoStorage.getLogo(profile.logoId).then(record => {
+      LogoStorage.getLogo(profile.logoId).then((record) => {
         if (record) {
           const url = URL.createObjectURL(record.data);
           currentUrl = url;
@@ -50,35 +52,37 @@ export function ReceiptPanel() {
 
   const results = useMemo(() => {
     if (!project || !rates) return [];
-    
-    return project.quoteItems.map(item => {
-      let service = null;
-      for (const cat of rates.categories) {
-        service = cat.services.find(s => s.id === item.serviceId);
-        if (service) break;
-      }
-      
-      if (!service) return null;
-      
-      const { lineItems, subtotal } = ComputationEngine.computeBase(service, item.quantity, item.params);
-      const { modifiers, total } = ComputationEngine.applyModifiers(subtotal, service, item.modifiers);
-      
-      return {
-        id: item.id,
-        service,
-        lineItems,
-        subtotal,
-        modifiers,
-        total
-      } as {
-        id: string;
-        service: Service;
-        lineItems: LineItem[];
-        subtotal: Money;
-        modifiers: ModifierResult[];
-        total: Money;
-      };
-    }).filter((r): r is NonNullable<typeof r> => r !== null);
+
+    return project.quoteItems
+      .map((item) => {
+        let service = null;
+        for (const cat of rates.categories) {
+          service = cat.services.find((s) => s.id === item.serviceId);
+          if (service) break;
+        }
+
+        if (!service) return null;
+
+        const { lineItems, subtotal } = ComputationEngine.computeBase(service, item.quantity, item.params);
+        const { modifiers, total } = ComputationEngine.applyModifiers(subtotal, service, item.modifiers);
+
+        return {
+          id: item.id,
+          service,
+          lineItems,
+          subtotal,
+          modifiers,
+          total,
+        } as {
+          id: string;
+          service: Service;
+          lineItems: LineItem[];
+          subtotal: Money;
+          modifiers: ModifierResult[];
+          total: Money;
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
   }, [project, rates]);
 
   const totals = useMemo(() => {
@@ -86,15 +90,15 @@ export function ReceiptPanel() {
     for (const res of results) {
       if (res) subtotalCents += res.total.cents;
     }
-    
+
     const subtotalMoney = new Money(subtotalCents);
     const vatMoney = includeVat ? subtotalMoney.multiply(rates?.meta.vat_rate || 0.12) : Money.zero();
     const grandTotal = subtotalMoney.add(vatMoney);
-    
+
     return {
       subtotal: subtotalMoney.format(),
       vat: vatMoney.format(),
-      grand: grandTotal.format()
+      grand: grandTotal.format(),
     };
   }, [results, includeVat, rates]);
 
@@ -108,9 +112,9 @@ export function ReceiptPanel() {
           <h2 className="font-bold uppercase tracking-tight text-sm">Receipt Summary</h2>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className={cn("h-8 w-8", showWorksheet && "bg-primary/10 text-primary")}
             onClick={() => setShowWorksheet(!showWorksheet)}
           >
@@ -130,7 +134,7 @@ export function ReceiptPanel() {
                   </div>
                   <span className="text-sm tabular-nums font-semibold">{res?.total.format()}</span>
                 </div>
-                
+
                 {showWorksheet && (
                   <div className="ml-2 pl-3 border-l-2 border-muted py-1 flex flex-col gap-1">
                     {res.lineItems.map((li) => (
@@ -141,7 +145,9 @@ export function ReceiptPanel() {
                     ))}
                     {res.modifiers.map((mod) => (
                       <div key={mod.id} className="flex justify-between text-[11px] text-success italic">
-                        <span>{mod.label}: {mod.optionLabel}</span>
+                        <span>
+                          {mod.label}: {mod.optionLabel}
+                        </span>
                         <span>+{mod.formattedAmount}</span>
                       </div>
                     ))}
@@ -158,15 +164,17 @@ export function ReceiptPanel() {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{totals.subtotal}</span>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="vat" 
-                  checked={includeVat} 
+                <Checkbox
+                  id="vat"
+                  checked={includeVat}
                   onCheckedChange={(checked: boolean | "indeterminate") => setIncludeVat(!!checked)}
                 />
-                <label htmlFor="vat" className="text-sm text-muted-foreground cursor-pointer">VAT (12%)</label>
+                <label htmlFor="vat" className="text-sm text-muted-foreground cursor-pointer">
+                  VAT (12%)
+                </label>
               </div>
               <span className="text-sm font-medium">{totals.vat}</span>
             </div>
@@ -178,23 +186,18 @@ export function ReceiptPanel() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-2 pt-4">
             {isClient && (
               <PDFDownloadLink
                 document={
-                  <QuotePDF 
-                    project={project} 
-                    results={results} 
-                    totals={totals} 
-                    branding={{ ...profile, logoUrl }}
-                  />
+                  <QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />
                 }
-                fileName={`Quote-${project.name.replace(/\s+/g, '-')}.pdf`}
+                fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
               >
                 {({ loading }) => (
                   <Button className="w-full gap-2 font-bold shadow-lg shadow-primary/20" disabled={loading}>
-                    <Download className="h-4 w-4" /> {loading ? 'PREPARING...' : 'EXPORT PDF'}
+                    <Download className="h-4 w-4" /> {loading ? "PREPARING..." : "EXPORT PDF"}
                   </Button>
                 )}
               </PDFDownloadLink>

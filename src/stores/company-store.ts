@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface CompanyProfile {
   name: string;
@@ -19,12 +19,12 @@ export const useCompanyStore = create<CompanyStore>()(
   persist(
     (set) => ({
       profile: {
-        name: '',
-        address: '',
-        contact: '',
-        email: '',
-        website: '',
-        logoId: 'primary-logo'
+        name: "",
+        address: "",
+        contact: "",
+        email: "",
+        website: "",
+        logoId: "primary-logo",
       },
       setProfile: (newProfile) =>
         set((state) => ({
@@ -32,7 +32,7 @@ export const useCompanyStore = create<CompanyStore>()(
         })),
     }),
     {
-      name: 'company-storage',
-    }
-  )
+      name: "company-storage",
+    },
+  ),
 );

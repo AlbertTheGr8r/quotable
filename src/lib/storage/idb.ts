@@ -1,7 +1,7 @@
-import { openDB, type IDBPDatabase } from 'idb';
+import { type IDBPDatabase, openDB } from "idb";
 
-const DB_NAME = 'quotable-storage';
-const STORE_NAME = 'logos';
+const DB_NAME = "quotable-storage";
+const STORE_NAME = "logos";
 
 export interface LogoRecord {
   id: string;
@@ -17,7 +17,7 @@ function getDB() {
     dbPromise = openDB(DB_NAME, 1, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          db.createObjectStore(STORE_NAME, { keyPath: "id" });
         }
       },
     });
