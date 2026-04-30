@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useProjectStore } from "@/stores/project-store";
 import { CompanyProfileDialog } from "./CompanyProfileDialog";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function ProjectSidebar() {
   const { projects, activeProjectId, actions } = useProjectStore();
@@ -103,9 +104,15 @@ export function ProjectSidebar() {
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-muted/20">
-        <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-2">Settings</div>
-        <CompanyProfileDialog />
+      <div className="p-4 border-t bg-muted/20 space-y-4">
+        <div>
+          <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-2">Theme</div>
+          <ThemeToggle />
+        </div>
+        <div>
+          <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-2">Settings</div>
+          <CompanyProfileDialog />
+        </div>
       </div>
     </div>
   );
