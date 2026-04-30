@@ -155,18 +155,18 @@ export function QuoteBuilder() {
                 "font-bold transition-all",
                 isEditingName
                   ? "border-success text-success hover:bg-success hover:text-success-foreground"
-                  : "border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground",
+                  : "border-primary/50 text-primary hover:bg-primary dark:hover:bg-primary hover:text-primary-foreground",
               )}
               onMouseDown={isEditingName ? (e) => e.preventDefault() : undefined}
               onClick={isEditingName ? handleSaveName : handleStartEdit}
             >
               {isEditingName ? (
                 <>
-                  <Check className="h-4 w-4 mr-2" /> SAVE
+                  <Check className="h-4 w-4 mr-2" /> Save
                 </>
               ) : (
                 <>
-                  <Pencil className="h-4 w-4 mr-2" /> RENAME
+                  <Pencil className="h-4 w-4 mr-2" /> Rename
                 </>
               )}
             </Button>
@@ -175,20 +175,20 @@ export function QuoteBuilder() {
               size="sm"
               variant="outline"
               disabled={isEditingName}
-              className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-bold transition-all"
+              className="border-primary/50 text-primary hover:bg-primary dark:hover:bg-primary hover:text-primary-foreground font-bold transition-all"
               onClick={handleShare}
             >
-              <Share2 className="h-4 w-4 mr-2" /> SHARE
+              <Share2 className="h-4 w-4 mr-2" /> Share
             </Button>
 
             <Button
               size="sm"
               variant="outline"
               disabled={isEditingName}
-              className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground font-bold transition-all"
+              className="border-destructive/50 text-destructive hover:!bg-destructive hover:!text-destructive-foreground dark:hover:!bg-destructive dark:hover:!text-destructive-foreground font-bold transition-all"
               onClick={() => setIsDeleteDialogOpen(true)}
             >
-              <Trash2 className="h-4 w-4 mr-2" /> DELETE
+              <Trash2 className="h-4 w-4 mr-2 group-hover:text-destructive-foreground" /> Delete
             </Button>
           </div>
         </div>

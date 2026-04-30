@@ -271,24 +271,13 @@ export function ReceiptPanel() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className="sm:mt-0">Cancel</AlertDialogCancel>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <CompanyProfileDialog
-                trigger={
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold"
-                  >
-                    COMPLETE PROFILE
-                  </Button>
-                }
-                onComplete={() => setIsExportDialogOpen(false)}
-              />
+            <div className="flex flex-col sm:flex-row gap-2 sm:mr-auto w-full sm:w-auto">
+              <AlertDialogCancel className="w-full sm:w-auto sm:mt-0 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 dark:hover:bg-destructive/20 transition-colors">
+                Cancel
+              </AlertDialogCancel>
               {isClient && (
                 <PDFDownloadLink
-                  document={
-                    <QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />
-                  }
+                  document={<QuotePDF project={project} results={results} totals={totals} branding={{ ...profile, logoUrl }} />}
                   fileName={`Quote-${project.name.replace(/\s+/g, "-")}.pdf`}
                 >
                   {({ loading }) => (
@@ -298,12 +287,23 @@ export function ReceiptPanel() {
                       disabled={loading}
                       onClick={() => setIsExportDialogOpen(false)}
                     >
-                      {loading ? "PREPARING..." : "PROCEED ANYWAY"}
+                      {loading ? "Preparing..." : "Not now"}
                     </Button>
                   )}
                 </PDFDownloadLink>
               )}
             </div>
+            <CompanyProfileDialog
+              trigger={
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto border-primary text-primary hover:bg-primary dark:hover:bg-primary hover:text-primary-foreground font-bold"
+                >
+                  Complete Profile
+                </Button>
+              }
+              onComplete={() => setIsExportDialogOpen(false)}
+            />
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
