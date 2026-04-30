@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useYamlData } from "@/hooks/use-yaml-data";
-import { ComputationEngine, type LineItem, type ModifierResult } from "@/lib/engine";
+import { applyModifiers, computeBase, type LineItem, type ModifierResult } from "@/lib/engine";
 import { Money } from "@/lib/engine/money";
 import type { Service } from "@/lib/schema/rates";
 import { LogoStorage } from "@/lib/storage/idb";
@@ -63,8 +63,8 @@ export function ReceiptPanel() {
 
         if (!service) return null;
 
-        const { lineItems, subtotal } = ComputationEngine.computeBase(service, item.quantity, item.params);
-        const { modifiers, total } = ComputationEngine.applyModifiers(subtotal, service, item.modifiers);
+        const { lineItems, subtotal } = computeBase(service, item.quantity, item.params);
+        const { modifiers, total } = applyModifiers(subtotal, service, item.modifiers);
 
         return {
           id: item.id,

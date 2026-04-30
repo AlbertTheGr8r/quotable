@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Service } from "../../schema/rates";
-import { ComputationEngine } from "../index";
+import { applyModifiers, computeBase } from "../index";
 
 const lookupService: Service = {
   id: "relocation",
@@ -116,57 +116,57 @@ const flatPerUnitService: Service = {
 
 describe("Computation Engine - Exact Match Tests", () => {
   test("lookup_table — 10 ha (bug fix)", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 10, {});
+    const { subtotal } = computeBase(lookupService, 10, {});
     expect(subtotal.cents).toBe(12000000); // ₱120,000
   });
 
   test("lookup_table — 26 ha, agricultural", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 26, {});
+    const { subtotal } = computeBase(lookupService, 26, {});
     expect(subtotal.cents).toBe(24700000); // ₱247,000
   });
 
   test("lookup_table — 0.5 ha", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 0.5, {});
+    const { subtotal } = computeBase(lookupService, 0.5, {});
     expect(subtotal.cents).toBe(3000000); // ₱30,000
   });
 
   test("lookup_table — 70 ha (last column)", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 70, {});
+    const { subtotal } = computeBase(lookupService, 70, {});
     expect(subtotal.cents).toBe(51150000); // ₱511,500
   });
 
   test("lookup_table — 71 ha (excess)", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 71, {});
+    const { subtotal } = computeBase(lookupService, 71, {});
     expect(subtotal.cents).toBe(51650000); // ₱511,500 + ₱5,000
   });
 
   test("lookup_table — land use commercial (+150%)", () => {
-    const { subtotal } = ComputationEngine.computeBase(lookupService, 10, {});
-    const { total } = ComputationEngine.applyModifiers(subtotal, lookupService, { "land-use": "commercial" });
+    const { subtotal } = computeBase(lookupService, 10, {});
+    const { total } = applyModifiers(subtotal, lookupService, { "land-use": "commercial" });
     expect(total.cents).toBe(30000000); // ₱120,000 + ₱180,000
   });
 
   test("tiered_base_plus_unit — 45 lots", () => {
-    const { subtotal } = ComputationEngine.computeBase(tieredBaseService, 45, {});
+    const { subtotal } = computeBase(tieredBaseService, 45, {});
     // range 20-49: base 218000, per_unit 11000, excess_above 20
     // 218000 + (45 - 20) * 11000 = 218000 + 275000 = 493000
     expect(subtotal.cents).toBe(49300000); // ₱493,000
   });
 
   test("tiered_per_unit — 26 ha @1.0m contour", () => {
-    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 26, { contour: "1.0m" });
+    const { subtotal } = computeBase(tieredPerUnitService, 26, { contour: "1.0m" });
     // 1*45000 + 9*25000 + 10*15000 + 6*10000 = 45000 + 225000 + 150000 + 60000 = 480000
     expect(subtotal.cents).toBe(48000000); // ₱480,000
   });
 
   test("tiered_per_unit — 1 ha (minimum fee)", () => {
-    const { subtotal } = ComputationEngine.computeBase(tieredPerUnitService, 1, { contour: "0.5m" });
+    const { subtotal } = computeBase(tieredPerUnitService, 1, { contour: "0.5m" });
     // 1*50000
     expect(subtotal.cents).toBe(5000000); // ₱50,000
   });
 
   test("flat_per_unit — road_centerline x 5 km", () => {
-    const { subtotal } = ComputationEngine.computeBase(flatPerUnitService, 5, { road_centerline: "true" });
+    const { subtotal } = computeBase(flatPerUnitService, 5, { road_centerline: "true" });
     // 5 * 40000
     expect(subtotal.cents).toBe(20000000); // ₱200,000
   });

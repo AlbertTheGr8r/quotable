@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ComputationEngine } from "@/lib/engine";
+import { applyModifiers, computeBase } from "@/lib/engine";
 import type { RateFile, Service } from "@/lib/schema/rates";
 import { type Project, type QuoteItem, useProjectStore } from "@/stores/project-store";
 
@@ -31,8 +31,8 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
 
   const result = useMemo(() => {
     if (!service) return null;
-    const { lineItems, subtotal } = ComputationEngine.computeBase(service, item.quantity, item.params);
-    const { modifiers, total } = ComputationEngine.applyModifiers(subtotal, service, item.modifiers);
+    const { lineItems, subtotal } = computeBase(service, item.quantity, item.params);
+    const { modifiers, total } = applyModifiers(subtotal, service, item.modifiers);
 
     return {
       subtotal: subtotal.format(),
