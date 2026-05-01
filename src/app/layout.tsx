@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { SiteTitle } from "@/components/layout/SiteTitle";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import "./globals.css";
 
@@ -10,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Quotable — Professional Rate Engine",
+  title: "Quotable: Rates and Services Fees",
   description: "A local-first, schema-driven quoting tool for professionals.",
   appleWebApp: {
     capable: true,
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground min-h-screen`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <SiteTitle />
           {children}
           <Toaster position="bottom-center" />
         </ThemeProvider>
