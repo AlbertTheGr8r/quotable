@@ -1,5 +1,7 @@
 import { Money } from "./money";
 
+export type { LineItem, ModifierResult } from "../schema/rates";
+
 export { Money };
 
 import type { Fee, LineItem, ModifierResult, ProjectCost, Service, ServiceCost } from "../schema/rates";

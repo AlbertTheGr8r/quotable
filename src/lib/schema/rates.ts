@@ -196,6 +196,20 @@ export const CategorySchema = z.object({
   services: z.array(ServiceSchema),
 });
 
+export const UnitCategorySchema = z.enum(["area", "length", "count", "time"]);
+
+export const UnitDefinitionSchema = z.object({
+  factor: z.number(),
+  aliases: z.array(z.string()).optional(),
+});
+
+export const UnitCategoryConfigSchema = z.object({
+  canonical: z.string(),
+  units: z.record(z.string(), UnitDefinitionSchema),
+});
+
+export const UnitsConfigSchema = z.record(z.string(), UnitCategoryConfigSchema);
+
 export const RateFileSchema = z.object({
   meta: z.object({
     title: z.string(),
@@ -204,15 +218,7 @@ export const RateFileSchema = z.object({
     vat_rate: z.number().default(0.12),
     source_url: z.string().optional(),
   }),
-  units: z.object({
-    conversions: z.array(
-      z.object({
-        from: z.string(),
-        to: z.string(),
-        factor: z.number(),
-      }),
-    ),
-  }),
+  units: UnitsConfigSchema,
   categories: z.array(CategorySchema),
   uncategorized: z.array(ServiceSchema).optional(),
 });

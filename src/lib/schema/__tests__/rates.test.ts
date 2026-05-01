@@ -46,8 +46,13 @@ meta:
   vat_rate: 0.12
 
 units:
-  conversions:
-    - { from: "sqm", to: "ha", factor: 0.0001 }
+  area:
+    canonical: ha
+    units:
+      ha:
+        factor: 1
+      sqm:
+        factor: 0.0001
 
 categories:
   - id: test-category
@@ -72,6 +77,9 @@ categories:
 
     const parsed = yaml.load(yamlContent);
     const result = RateFileSchema.safeParse(parsed);
+    if (!result.success) {
+      console.log("Validation errors:", JSON.stringify(result.error.issues, null, 2));
+    }
     expect(result.success).toBe(true);
   });
 });

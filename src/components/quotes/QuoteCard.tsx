@@ -1,12 +1,13 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { applyModifiers, computeBase } from "@/lib/engine";
+import { convert, getRateFileUnits, getServiceAvailableUnits, normalizeQuantity } from "@/lib/engine/units";
 import type { RateFile, Service } from "@/lib/schema/rates";
 import { type Project, type QuoteItem, useProjectStore } from "@/stores/project-store";
 
@@ -18,6 +19,7 @@ interface QuoteCardProps {
 
 export function QuoteCard({ project, item, rates }: QuoteCardProps) {
   const { actions } = useProjectStore();
+  const [displayUnit, setDisplayUnit] = useState<string | null>(null);
 
   const service = useMemo(() => {
     if (!rates) return null;
@@ -28,6 +30,27 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
     }
     return found;
   }, [rates, item.serviceId]);
+
+  const availableUnits = useMemo(() => {
+    if (!rates || !service) return [];
+    const unitsConfig = getRateFileUnits(rates);
+    return getServiceAvailableUnits(service, unitsConfig);
+  }, [rates, service]);
+
+  const canonicalUnit = useMemo(() => {
+    if (!rates || !service) return service?.unit || "";
+    const unitsConfig = getRateFileUnits(rates);
+    const category = service.unit_type;
+    return unitsConfig[category]?.canonical || service.unit;
+  }, [rates, service]);
+
+  const currentDisplayUnit = displayUnit || canonicalUnit;
+
+  const displayQuantity = useMemo(() => {
+    if (!rates || !service) return item.quantity;
+    const unitsConfig = getRateFileUnits(rates);
+    return convert(item.quantity, canonicalUnit, currentDisplayUnit, unitsConfig);
+  }, [rates, service, item.quantity, canonicalUnit, currentDisplayUnit]);
 
   const result = useMemo(() => {
     if (!service) return null;
@@ -41,6 +64,13 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
       modifiers,
     };
   }, [service, item.quantity, item.params, item.modifiers]);
+
+  const handleQuantityChange = (value: number, unit: string) => {
+    if (!service || !rates) return;
+    const unitsConfig = getRateFileUnits(rates);
+    const normalized = normalizeQuantity(value, unit, service.unit_type, unitsConfig);
+    actions.updateQuoteItem(project.id, item.id, { quantity: normalized });
+  };
 
   if (!service || !result) return null;
 
@@ -67,14 +97,26 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
         <div className="grid grid-cols-2 gap-4">
           {service.strategy !== "flat" && (
             <div className="flex flex-col gap-2">
-              <Label className="text-xs">Quantity ({service.unit_display})</Label>
-              <Input
-                type="number"
-                value={item.quantity}
-                onChange={(e) =>
-                  actions.updateQuoteItem(project.id, item.id, { quantity: parseFloat(e.target.value) || 0 })
-                }
-              />
+              <Label className="text-xs">Quantity</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  className="flex-1"
+                  value={displayQuantity}
+                  onChange={(e) => handleQuantityChange(parseFloat(e.target.value) || 0, currentDisplayUnit)}
+                />
+                <select
+                  className="w-24 rounded-md border border-input bg-background px-2 py-2 text-sm focus-visible:outline-none"
+                  value={currentDisplayUnit}
+                  onChange={(e) => setDisplayUnit(e.target.value)}
+                >
+                  {availableUnits.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
 

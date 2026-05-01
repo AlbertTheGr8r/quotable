@@ -119,19 +119,21 @@ export function ReceiptPanel() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b flex items-center justify-between">
+      <div className="px-6 h-16 border-b flex items-center justify-between bg-primary shrink-0">
         <div className="flex items-center gap-2">
-          <Receipt className="h-5 w-5 text-primary" />
-          <h2 className="font-bold uppercase tracking-tight text-sm">Receipt Summary</h2>
+          <Receipt className="h-5 w-5 text-primary-foreground" />
+          <h2 className="font-bold uppercase tracking-tight text-sm text-primary-foreground">Receipt Summary</h2>
         </div>
+
         <div className="flex gap-2">
           {results.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 transition-all hover:bg-primary/10 hover:text-primary",
-                showWorksheet && "bg-primary/10 text-primary",
+                "h-8 w-8 transition-all text-primary-foreground",
+                "hover:bg-primary-foreground/10 hover:text-primary-foreground",
+                showWorksheet && "bg-primary-foreground/20",
               )}
               onClick={() => setShowWorksheet(!showWorksheet)}
             >
