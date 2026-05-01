@@ -223,6 +223,13 @@ export const RateFileSchema = z.object({
   uncategorized: z.array(ServiceSchema).optional(),
 });
 
+export const IndexSchema = z.object({
+  version: z.string(),
+  meta: z.string(),
+  categories: z.record(z.string(), z.string()),
+  hourly: z.string().optional(),
+});
+
 export const LineItemSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -282,6 +289,8 @@ export const ProjectCostSchema = z.object({
 });
 
 export type RateFile = z.infer<typeof RateFileSchema>;
+export type Index = z.infer<typeof IndexSchema>;
+export type Category = z.infer<typeof CategorySchema>;
 export type Service = z.infer<typeof ServiceSchema>;
 export type Modifier = z.infer<typeof ModifierSchema>;
 export type FeeCategory = z.infer<typeof FeeCategorySchema>;

@@ -1,9 +1,10 @@
 import { type IDBPDatabase, openDB } from "idb";
+import type { RateFile } from "../schema/rates";
 
 const DB_NAME = "quotable-storage";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const LOGO_STORE = "logos";
-const YAML_STORE = "custom-yamls";
+const RATE_STORE = "custom-rates";
 
 export interface LogoRecord {
   id: string;
@@ -12,10 +13,10 @@ export interface LogoRecord {
   updatedAt: number;
 }
 
-export interface YamlRecord {
+export interface RateRecord {
   id: string;
   name: string;
-  content: string;
+  data: RateFile;
   updatedAt: number;
 }
 
@@ -28,9 +29,9 @@ function getDB() {
         if (oldVersion < 1) {
           db.createObjectStore(LOGO_STORE, { keyPath: "id" });
         }
-        if (oldVersion < 2) {
-          if (!db.objectStoreNames.contains(YAML_STORE)) {
-            db.createObjectStore(YAML_STORE, { keyPath: "id" });
+        if (oldVersion < 3) {
+          if (!db.objectStoreNames.contains(RATE_STORE)) {
+            db.createObjectStore(RATE_STORE, { keyPath: "id" });
           }
         }
       },
@@ -61,30 +62,30 @@ export const LogoStorage = {
   },
 };
 
-export const YamlStorage = {
-  async saveYaml(id: string, name: string, content: string): Promise<void> {
+export const RateStorage = {
+  async saveRate(id: string, name: string, data: RateFile): Promise<void> {
     const db = await getDB();
-    await db.put(YAML_STORE, {
+    await db.put(RATE_STORE, {
       id,
       name,
-      content,
+      data,
       updatedAt: Date.now(),
     });
   },
 
-  async getYaml(id: string): Promise<YamlRecord | undefined> {
+  async getRate(id: string): Promise<RateRecord | undefined> {
     const db = await getDB();
-    return db.get(YAML_STORE, id);
+    return db.get(RATE_STORE, id);
   },
 
-  async getAllYamls(): Promise<YamlRecord[]> {
+  async getAllRates(): Promise<RateRecord[]> {
     const db = await getDB();
-    const yamls = await db.getAll(YAML_STORE);
-    return yamls.sort((a, b) => b.updatedAt - a.updatedAt);
+    const rates = await db.getAll(RATE_STORE);
+    return rates.sort((a, b) => b.updatedAt - a.updatedAt);
   },
 
-  async deleteYaml(id: string): Promise<void> {
+  async deleteRate(id: string): Promise<void> {
     const db = await getDB();
-    await db.delete(YAML_STORE, id);
+    await db.delete(RATE_STORE, id);
   },
 };

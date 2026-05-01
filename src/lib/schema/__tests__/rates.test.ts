@@ -2,7 +2,7 @@ import yaml from "js-yaml";
 
 import { describe, expect, it } from "vitest";
 
-import { ModifierSchema, RateFileSchema } from "../rates";
+import { IndexSchema, ModifierSchema, RateFileSchema } from "../rates";
 
 describe("ModifierSchema", () => {
   it("should accept percentage_add with value <= 1", () => {
@@ -81,5 +81,32 @@ categories:
       console.log("Validation errors:", JSON.stringify(result.error.issues, null, 2));
     }
     expect(result.success).toBe(true);
+  });
+});
+
+describe("IndexSchema", () => {
+  it("should validate a correct manifest index", () => {
+    const manifest = {
+      version: "1.0",
+      meta: "meta_units.yaml",
+      categories: {
+        isolated_land: "./cat_isolated_land.yaml",
+        subdivision: "./cat_subdivision.yaml",
+      },
+      hourly: "./hourly_rates.yaml",
+    };
+    const result = IndexSchema.safeParse(manifest);
+    expect(result.success).toBe(true);
+  });
+
+  it("should fail if meta is missing", () => {
+    const manifest = {
+      version: "1.0",
+      categories: {
+        isolated_land: "./cat_isolated_land.yaml",
+      },
+    };
+    const result = IndexSchema.safeParse(manifest);
+    expect(result.success).toBe(false);
   });
 });

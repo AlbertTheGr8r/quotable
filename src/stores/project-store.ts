@@ -43,7 +43,7 @@ export const useProjectStore = create<ProjectState>()(
         {
           id: "project-1",
           name: "Project 1",
-          yamlUrl: "/rates/gepi-2020-2023.yaml",
+          yamlUrl: "/rates/dist/gepi-2020-2023.json",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           quoteItems: [],
@@ -123,6 +123,25 @@ export const useProjectStore = create<ProjectState>()(
     {
       name: "quotable-projects",
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState: unknown, version: number) => {
+        if (version === 0) {
+          // Migration from .yaml URLs to .json dist assets
+          const state = persistedState as ProjectState;
+          if (!state?.projects) return persistedState;
+
+          return {
+            ...state,
+            projects: state.projects.map((p) => {
+              if (p.yamlUrl === "/rates/gepi-2020-2023.yaml") {
+                return { ...p, yamlUrl: "/rates/dist/gepi-2020-2023.json" };
+              }
+              return p;
+            }),
+          };
+        }
+        return persistedState;
+      },
+      version: 1,
       partialize: (state) => ({
         projects: state.projects,
         activeProjectId: state.activeProjectId,

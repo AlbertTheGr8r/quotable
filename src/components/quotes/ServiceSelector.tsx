@@ -79,7 +79,7 @@ export function ServiceSelector({ rates, projectId, onSelect }: ServiceSelectorP
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="h-[40vh]">
         <div className="p-2 flex flex-col gap-1">
           {search ? (
             // Search mode: flat list sorted by relevance

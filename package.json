@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "npm run compile-rates",
+    "compile-rates": "npx -y tsx scripts/compile_rates.ts",
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
@@ -44,6 +46,7 @@
     "@types/react-dom": "^19",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.5"
   },

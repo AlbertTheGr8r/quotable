@@ -1,5 +1,6 @@
 "use client";
 
+import yaml from "js-yaml";
 import { Check, ChevronDown, HelpCircle, Pencil, Plus, Share2, Trash2, Upload } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useId, useRef, useState } from "react";
@@ -23,8 +24,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useYamlData } from "@/hooks/use-yaml-data";
-import { type YamlRecord, YamlStorage } from "@/lib/storage/idb";
+import { useRateData } from "@/hooks/use-rate-data";
+import { RateFileSchema } from "@/lib/schema/rates";
+import { type RateRecord, RateStorage } from "@/lib/storage/idb";
 import { cn } from "@/lib/utils";
 import { useProjectStore } from "@/stores/project-store";
 import { QuoteCard } from "./QuoteCard";
@@ -33,7 +35,7 @@ import { ServiceSelector } from "./ServiceSelector";
 export function QuoteBuilder() {
   const { projects, activeProjectId, actions } = useProjectStore();
   const project = projects.find((p) => p.id === activeProjectId);
-  const { data: rates } = useYamlData(project?.yamlUrl || "");
+  const { data: rates } = useRateData(project?.yamlUrl || "");
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const yamlUploadId = useId();
 
@@ -47,16 +49,16 @@ export function QuoteBuilder() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Rate Schedules State
-  const [availableRates, setAvailableRates] = useState<{ id: string; title: string; url: string }[]>([]);
-  const [customRates, setCustomRates] = useState<YamlRecord[]>([]);
+  const [availableRates, setAvailableRates] = useState<{ id: string; title: string; jsonUrl: string }[]>([]);
+  const [customRates, setCustomRates] = useState<RateRecord[]>([]);
 
   useEffect(() => {
-    fetch("/rates/index.json")
+    fetch("/rates/manifest.json")
       .then((res) => res.json())
       .then((data) => setAvailableRates(data))
-      .catch((err) => console.error("Failed to load rates index", err));
+      .catch((err) => console.error("Failed to load rates manifest", err));
 
-    YamlStorage.getAllYamls().then((yamls) => setCustomRates(yamls.slice(0, 3)));
+    RateStorage.getAllRates().then((rates) => setCustomRates(rates.slice(0, 3)));
   }, []);
 
   const handleStartEdit = () => {
@@ -87,16 +89,25 @@ export function QuoteBuilder() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const text = await file.text();
-      const id = `custom-${nanoid()}`;
-      const name = file.name.replace(".yaml", "").replace(".yml", "");
-      await YamlStorage.saveYaml(id, name, text);
+      try {
+        const text = await file.text();
+        const parsed = yaml.load(text);
+        const validated = RateFileSchema.parse(parsed);
 
-      const updatedCustom = await YamlStorage.getAllYamls();
-      setCustomRates(updatedCustom.slice(0, 3));
+        const id = `custom-${nanoid()}`;
+        const name = file.name.replace(".yaml", "").replace(".yml", "");
+        await RateStorage.saveRate(id, name, validated);
 
-      if (project) {
-        actions.updateProject(project.id, { yamlUrl: `local://${id}` });
+        const updatedCustom = await RateStorage.getAllRates();
+        setCustomRates(updatedCustom.slice(0, 3));
+
+        if (project) {
+          actions.updateProject(project.id, { yamlUrl: `local://${id}` });
+        }
+        toast.success("Rate schedule imported successfully!");
+      } catch (err) {
+        console.error("Failed to import YAML:", err);
+        toast.error("Failed to parse or validate YAML file.");
       }
     }
   };
@@ -236,8 +247,11 @@ export function QuoteBuilder() {
                   System Rates
                 </div>
                 {availableRates.map((r) => (
-                  <DropdownMenuItem key={r.id} onClick={() => actions.updateProject(project.id, { yamlUrl: r.url })}>
-                    <Check className={cn("h-4 w-4 mr-2 opacity-0", project.yamlUrl === r.url && "opacity-100")} />
+                  <DropdownMenuItem
+                    key={r.id}
+                    onClick={() => actions.updateProject(project.id, { yamlUrl: r.jsonUrl })}
+                  >
+                    <Check className={cn("h-4 w-4 mr-2 opacity-0", project.yamlUrl === r.jsonUrl && "opacity-100")} />
                     <span className="truncate">{r.title}</span>
                   </DropdownMenuItem>
                 ))}

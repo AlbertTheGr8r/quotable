@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useYamlData } from "@/hooks/use-yaml-data";
+import { useRateData } from "@/hooks/use-rate-data";
 import { applyModifiers, computeBase } from "@/lib/engine";
 import { Money } from "@/lib/engine/money";
 import type { LineItem, ModifierResult, Service } from "@/lib/schema/rates";
@@ -30,7 +30,7 @@ import { QuotePDF } from "./QuotePDF";
 export function ReceiptPanel() {
   const { projects, activeProjectId } = useProjectStore();
   const project = projects.find((p) => p.id === activeProjectId);
-  const { data: rates } = useYamlData(project?.yamlUrl || "");
+  const { data: rates } = useRateData(project?.yamlUrl || "");
 
   const [showWorksheet, setShowWorksheet] = useState(() => {
     if (typeof window === "undefined") return true;
