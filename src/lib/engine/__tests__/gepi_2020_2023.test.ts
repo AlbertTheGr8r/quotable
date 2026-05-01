@@ -78,9 +78,24 @@ describe("GEPI 2020-2023 Boundary Analysis", () => {
       expect(result.subtotal).toBe(60000);
     });
 
+    it("1.5 ha = 80000 (resolves to 2 ha row)", () => {
+      const result = computeServiceCost(service, 1.5);
+      expect(result.subtotal).toBe(80000);
+    });
+
+    it("2.1 ha = 100000 (resolves to 3 ha row)", () => {
+      const result = computeServiceCost(service, 2.1);
+      expect(result.subtotal).toBe(100000);
+    });
+
     it("10 ha = 240000", () => {
       const result = computeServiceCost(service, 10);
       expect(result.subtotal).toBe(240000);
+    });
+
+    it("10.5 ha = 257000 (Col: 10, Row: 0.5-1)", () => {
+      const result = computeServiceCost(service, 10.5);
+      expect(result.subtotal).toBe(257000);
     });
 
     it("70 ha = 1023000", () => {

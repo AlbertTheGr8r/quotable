@@ -55,7 +55,7 @@ export function computeBase(
         const colIndex = table.columns.indexOf(tens);
 
         // Find row id
-        const rowLogic = table.row_logic.find((r) => units >= r.min && units <= r.max);
+        const rowLogic = table.row_logic.find((r) => units <= r.max);
 
         if (colIndex !== -1 && rowLogic) {
           const baseAmount = table.rows[rowLogic.id][colIndex];
