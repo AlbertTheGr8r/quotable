@@ -110,8 +110,10 @@ describe("useUrlSync", () => {
 
     renderHook(() => useUrlSync());
 
-    expect(mockActions.updateProject).toHaveBeenCalledWith("test-1", urlProject);
-    expect(mockActions.setActiveProject).toHaveBeenCalledWith("test-1");
+    // Should NOT use actions.updateProject (which would overwrite updatedAt)
+    // Instead uses setState directly, so check storeState was updated
+    expect(storeState.projects[0].name).toBe("URL Project");
+    expect(storeState.activeProjectId).toBe("test-1");
     expect(toast).not.toHaveBeenCalled();
   });
 

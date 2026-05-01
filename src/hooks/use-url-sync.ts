@@ -22,20 +22,21 @@ export function useUrlSync() {
         const localProject = useProjectStore.getState().projects.find((p) => p.id === urlProject.id);
 
         if (!localProject) {
-          // New project from URL, add to local storage exactly as is
           useProjectStore.setState((state) => ({
             projects: [...state.projects, urlProject],
             activeProjectId: urlProject.id,
           }));
         } else {
-          // Compare dates
           const urlDate = new Date(urlProject.updatedAt).getTime();
           const localDate = new Date(localProject.updatedAt).getTime();
 
           if (urlDate > localDate) {
-            // URL is newer, update local
-            actions.updateProject(localProject.id, urlProject);
-            actions.setActiveProject(localProject.id);
+            useProjectStore.setState((state) => ({
+              projects: state.projects.map((p) =>
+                p.id === localProject.id ? { ...p, ...urlProject } : p
+              ),
+              activeProjectId: localProject.id,
+            }));
           } else if (localDate > urlDate) {
             // Local is newer, ask user
             toast("A newer version of this project exists locally.", {
