@@ -32,7 +32,11 @@ export function ReceiptPanel() {
   const project = projects.find((p) => p.id === activeProjectId);
   const { data: rates } = useYamlData(project?.yamlUrl || "");
 
-  const [showWorksheet, setShowWorksheet] = useState(false);
+  const [showWorksheet, setShowWorksheet] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("showWorksheet");
+    return stored !== null ? stored === "true" : true;
+  });
   const [includeVat, setIncludeVat] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const { profile } = useCompanyStore();
@@ -44,6 +48,10 @@ export function ReceiptPanel() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("showWorksheet", String(showWorksheet));
+  }, [showWorksheet]);
 
   useEffect(() => {
     // Fetch logo
@@ -256,7 +264,7 @@ export function ReceiptPanel() {
                 </Button>
               )}
               <p className="text-[10px] text-center text-muted-foreground px-4">
-                All quotes generated are based on current legislative rates and are subject to final adjustment.
+                All quotes generated are based on user submitted rates and are subject to final adjustment.
               </p>
             </div>
           </div>

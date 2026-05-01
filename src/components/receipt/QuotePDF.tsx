@@ -213,7 +213,7 @@ export function QuotePDF({ project, results, totals, branding }: QuotePDFProps) 
           <Text style={[styles.label, { marginBottom: 4, color: "#b45309" }]}>Important Notes</Text>
           <Text style={styles.warningText}>• This quote is valid for 30 days from the date of issue.</Text>
           <Text style={styles.warningText}>
-            • Fees are based on standard GEPI rate schedules and current legislation.
+            • Fees are based on user submitted rate schedules. Consult a professional for actual costs.
           </Text>
           <Text style={styles.warningText}>
             • Final project costs may vary based on actual field conditions and government verification fees.

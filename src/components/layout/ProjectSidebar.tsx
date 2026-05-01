@@ -111,6 +111,18 @@ export function ProjectSidebar() {
           <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-2">Settings</div>
           <CompanyProfileDialog />
         </div>
+        <div className="text-[10px] text-muted-foreground">
+          © 2026 Albert Florin
+          <br />
+          <a
+            href="https://github.com/AlbertTheGr8r/quotable"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            Quotable is open-source software licensed under MIT.
+          </a>
+        </div>
       </div>
     </div>
   );
