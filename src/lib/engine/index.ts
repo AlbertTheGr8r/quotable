@@ -204,6 +204,29 @@ export function computeBase(
         subtotal = fee;
       }
       break;
+
+    case "time_based":
+      if (service.time_based) {
+        const { roles, minimum_hours = 0 } = service.time_based;
+        // Role is expected in params.role, default to first role
+        const roleId = params.role || Object.keys(roles)[0];
+        const rate = roles[roleId] || 0;
+
+        const effectiveQuantity = Math.max(quantity, minimum_hours);
+        const itemMoney = Money.fromDouble(rate).multiply(effectiveQuantity);
+
+        lineItems.push({
+          id: roleId,
+          label: `${roleId.replace(/_/g, " ").toUpperCase()} (${effectiveQuantity} ${service.unit_display})`,
+          quantity: effectiveQuantity,
+          unit: service.unit,
+          rate: rate,
+          amount: itemMoney.value,
+          formattedAmount: itemMoney.format(),
+        });
+        subtotal = itemMoney;
+      }
+      break;
   }
 
   return { lineItems, subtotal };

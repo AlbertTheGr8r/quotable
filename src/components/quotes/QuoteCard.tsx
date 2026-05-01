@@ -28,6 +28,9 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
       found = cat.services.find((s) => s.id === item.serviceId);
       if (found) break;
     }
+    if (!found && rates.uncategorized) {
+      found = rates.uncategorized.find((s) => s.id === item.serviceId);
+    }
     return found;
   }, [rates, item.serviceId]);
 
@@ -141,6 +144,27 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
                 </select>
               </div>
             ))}
+
+          {service.strategy === "time_based" && service.time_based && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Role / Resource</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none"
+                value={item.params.role || Object.keys(service.time_based.roles)[0]}
+                onChange={(e) =>
+                  actions.updateQuoteItem(project.id, item.id, {
+                    params: { ...item.params, role: e.target.value },
+                  })
+                }
+              >
+                {Object.keys(service.time_based.roles).map((roleId) => (
+                  <option key={roleId} value={roleId}>
+                    {roleId.replace(/_/g, " ").toUpperCase()} (₱{service.time_based!.roles[roleId].toLocaleString()}/hr)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {service.strategy === "flat_per_unit" && service.flat_rates && (
             <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-muted/20 rounded-md">
