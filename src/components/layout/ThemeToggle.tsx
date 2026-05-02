@@ -2,6 +2,7 @@
 
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +13,20 @@ import {
 
 export function ThemeToggle() {
   const { setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="sm" className="w-full justify-start gap-2 px-2" disabled>
+        <Sun className="h-4 w-4" />
+        <span className="text-xs font-medium">Theme</span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
