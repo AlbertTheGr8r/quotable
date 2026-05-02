@@ -32,9 +32,7 @@ export function useUrlSync() {
 
           if (urlDate > localDate) {
             useProjectStore.setState((state) => ({
-              projects: state.projects.map((p) =>
-                p.id === localProject.id ? { ...p, ...urlProject } : p
-              ),
+              projects: state.projects.map((p) => (p.id === localProject.id ? { ...p, ...urlProject } : p)),
               activeProjectId: localProject.id,
             }));
           } else if (localDate > urlDate) {

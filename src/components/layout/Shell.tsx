@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight, Menu, Receipt } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useUrlSync } from "@/hooks/use-url-sync";
@@ -12,7 +12,16 @@ import { ProjectSidebar } from "./ProjectSidebar";
 
 export function Shell() {
   useUrlSync();
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"quote" | "receipt">("quote");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -69,7 +78,7 @@ export function Shell() {
         </div>
 
         {/* Mobile Tab Bar */}
-        <nav className="lg:hidden h-14 border-t bg-background flex items-center justify-around px-4">
+        {/* <nav className="lg:hidden h-14 border-t bg-background flex items-center justify-around px-4">
           <Button
             variant="ghost"
             className={cn("flex flex-col gap-1 h-full w-full rounded-none", activeTab === "quote" && "text-primary")}
@@ -85,7 +94,7 @@ export function Shell() {
           >
             <div className="text-[10px] uppercase font-bold">Receipt</div>
           </Button>
-        </nav>
+        </nav> */}
       </main>
     </div>
   );

@@ -1,0 +1,50 @@
+- id: staff-hourly-rates
+  label: "Professional Staff Hourly Rates"
+  unit_type: time
+  unit: hour
+  unit_display: "hours"
+  strategy: time_based
+  time_based:
+    roles:
+      ge_project_director: 1918
+      sr_ge_project_manager: 1567
+      ge_project_manager: 1371
+      ge_v_party_chief: 1144
+      ge_iv_sr_supervising: 843
+      ge_iii_supervising: 646
+      ge_ii_project_ge: 484
+      ge_i_entry_level: 359
+
+- id: technical-hourly-rates
+  label: "Technical & Support Staff Hourly Rates"
+  unit_type: time
+  unit: hour
+  unit_display: "hours"
+  strategy: time_based
+  time_based:
+    roles:
+      sr_survey_cartographer: 335
+      assistant_ge: 241
+      sr_cad_gis_operator: 196
+      ge_technician_instrument_man: 196
+      cad_gis_operator: 165
+      survey_researcher: 165
+      ge_trainee: 129
+      ge_aide_chainmen: 129
+      driver: 101
+      laborer: 101
+
+- id: equipment-hourly-rates
+  label: "Equipment Hourly Rates"
+  unit_type: time
+  unit: hour
+  unit_display: "hours"
+  strategy: time_based
+  time_based:
+    roles:
+      total_station: 500
+      gps_single_frequency: 1563
+      gps_dual_frequency: 2250
+      echo_sounder: 1563
+      precise_level: 375
+      automatic_level: 188

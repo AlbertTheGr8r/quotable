@@ -1,0 +1,58 @@
+id: subdivision-surveys
+label: "Subdivision Surveys"
+services:
+  - id: residential-subdivision
+    label: "Residential Subdivision"
+    unit_type: count
+    unit: lot
+    unit_display: "lots"
+    strategy: tiered_base_plus_unit
+    tiered_base:
+      tiers:
+        - { range: [2, 4], base: 38000, per_unit: 12000, excess_above: 2 }
+        - { range: [5, 9], base: 62000, per_unit: 11500, excess_above: 5 }
+        - { range: [10, 19], base: 108000, per_unit: 11000, excess_above: 10 }
+        - { range: [20, 29], base: 207000, per_unit: 10500, excess_above: 20 }
+        - { range: [30, 39], base: 301500, per_unit: 10000, excess_above: 30 }
+        - { range: [40, 49], base: 391500, per_unit: 9500, excess_above: 40 }
+        - { range: [50, 99], base: 477000, per_unit: 9000, excess_above: 50 }
+        - { range: [100, 199], base: 558000, per_unit: 6500, excess_above: 100 }
+        - { range: [200, 299], base: 1201500, per_unit: 5000, excess_above: 200 }
+        - { range: [300, 399], base: 1696500, per_unit: 4000, excess_above: 300 }
+        - { range: [400, 499], base: 2092500, per_unit: 3000, excess_above: 400 }
+        - { range: [500, 999], base: 2389500, per_unit: 2000, excess_above: 500 }
+        - { range: [1000, null], base: 3387500, per_unit: 1000, excess_above: 1000 }
+
+  - id: agricultural-subdivision
+    label: "Agricultural Subdivision"
+    unit_type: count
+    unit: lot
+    unit_display: "lots"
+    strategy: tiered_base_plus_unit
+    tiered_base:
+      tiers:
+        - { range: [1, 4], base: 25000, per_unit: 6500, excess_above: 2 }
+        - { range: [5, 9], base: 38000, per_unit: 6000, excess_above: 5 }
+        - { range: [10, 19], base: 64000, per_unit: 5500, excess_above: 10 }
+        - { range: [20, 29], base: 122500, per_unit: 5000, excess_above: 20 }
+        - { range: [30, 39], base: 181000, per_unit: 4500, excess_above: 30 }
+        - { range: [40, 49], base: 239500, per_unit: 4000, excess_above: 40 }
+        - { range: [50, 99], base: 298000, per_unit: 3500, excess_above: 50 }
+        - { range: [100, null], base: 616500, per_unit: 2500, excess_above: 100 }
+
+  - id: institutional-subdivision
+    label: "Institutional Subdivision"
+    unit_type: count
+    unit: lot
+    unit_display: "lots"
+    strategy: tiered_base_plus_unit
+    tiered_base:
+      tiers:
+        - { range: [1, 4], base: 30000, per_unit: 6500, excess_above: 2 }
+        - { range: [5, 9], base: 43000, per_unit: 6000, excess_above: 5 }
+        - { range: [10, 19], base: 69000, per_unit: 5500, excess_above: 10 }
+        - { range: [20, 29], base: 127500, per_unit: 5000, excess_above: 20 }
+        - { range: [30, 39], base: 186000, per_unit: 4500, excess_above: 30 }
+        - { range: [40, 49], base: 244500, per_unit: 4000, excess_above: 40 }
+        - { range: [50, 99], base: 303000, per_unit: 3500, excess_above: 50 }
+        - { range: [100, null], base: 621500, per_unit: 2500, excess_above: 100 }

@@ -74,12 +74,15 @@ export function ReceiptPanel() {
   const results = useMemo(() => {
     if (!project || !rates) return [];
 
-    return project.quoteItems
+    const rawResults = project.quoteItems
       .map((item) => {
         let service = null;
         for (const cat of rates.categories) {
           service = cat.services.find((s) => s.id === item.serviceId);
           if (service) break;
+        }
+        if (!service && rates.uncategorized) {
+          service = rates.uncategorized.find((s) => s.id === item.serviceId);
         }
 
         if (!service) return null;
@@ -94,16 +97,43 @@ export function ReceiptPanel() {
           subtotal,
           modifiers,
           total,
-        } as {
-          id: string;
-          service: Service;
-          lineItems: LineItem[];
-          subtotal: Money;
-          modifiers: ModifierResult[];
-          total: Money;
         };
       })
       .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    // Grouping logic for time_based services
+    const grouped: Array<{
+      id: string;
+      service: Service;
+      lineItems: LineItem[];
+      subtotal: Money;
+      modifiers: ModifierResult[];
+      total: Money;
+    }> = [];
+
+    const hourlyGroups: Record<string, (typeof grouped)[0]> = {};
+
+    for (const res of rawResults) {
+      if (res.service.strategy === "time_based") {
+        if (!hourlyGroups[res.service.id]) {
+          hourlyGroups[res.service.id] = {
+            ...res,
+            id: `group-${res.service.id}`,
+          };
+          grouped.push(hourlyGroups[res.service.id]);
+        } else {
+          const group = hourlyGroups[res.service.id];
+          group.total = group.total.add(res.total);
+          group.subtotal = group.subtotal.add(res.subtotal);
+          group.lineItems.push(...res.lineItems);
+          group.modifiers.push(...res.modifiers);
+        }
+      } else {
+        grouped.push(res);
+      }
+    }
+
+    return grouped;
   }, [project, rates]);
 
   const totals = useMemo(() => {

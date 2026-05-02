@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeServiceCost, computeProjectCost } from "../index";
+import { computeProjectCost, computeServiceCost } from "../index";
 import * as fixtures from "./gepi_fixtures";
 
 describe("GEPI 2020-2023 Boundary Analysis", () => {

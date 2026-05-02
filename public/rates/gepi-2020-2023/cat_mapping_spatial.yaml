@@ -1,0 +1,102 @@
+id: mapping-spatial-services
+label: "Mapping and Spatial Information"
+services:
+  - id: laser-mapping
+    label: "Laser Mapping Services"
+    unit_type: count
+    unit: point
+    unit_display: "points/km"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        static_laser: 100000
+        mobile_laser: 50000
+
+  - id: uav-mapping
+    label: "UAV Mapping Services"
+    unit_type: area
+    unit: ha
+    unit_display: "hectares"
+    strategy: tiered_per_unit
+    tiered_per:
+      parameters:
+        - id: type
+          label: "Mapping Type"
+          type: select
+          options:
+            - { id: standard, label: "UAV Mapping", rates: [3000] }
+      tiers:
+        - { label: "Minimum 100 ha", up_to: null }
+    warnings:
+      - "Minimum 100 hectares required for this rate."
+
+  - id: location-plan
+    label: "Location Plan with Vicinity Map"
+    unit_type: count
+    unit: plan
+    unit_display: "plans"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        residential: 5000
+        agricultural: 7500
+        industrial_commercial: 10000
+
+  - id: digitized-map
+    label: "Digitized Map / Raster Data"
+    unit_type: count
+    unit: sheet
+    unit_display: "sheets"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        low_density: 70000
+        medium_density: 150000
+        high_density: 250000
+
+  - id: sis-development
+    label: "SIS Development & Implementation"
+    unit_type: count
+    unit: system
+    unit_display: "systems"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        development: 500000
+    additional_fees:
+      - id: implementation-fee
+        label: "System Implementation (30%)"
+        type: percentage_of_base
+        value: 0.3
+      - id: deployment-fee
+        label: "System Deployment (10%)"
+        type: percentage_of_base
+        value: 0.1
+
+  - id: photogrammetry-aerial
+    label: "Photogrammetry & Remote Sensing"
+    unit_type: area
+    unit: ha
+    unit_display: "hectares"
+    strategy: tiered_per_unit
+    tiered_per:
+      parameters:
+        - id: type
+          label: "Survey Type"
+          type: select
+          options:
+            - { id: aerial_digital, label: "Aerial Digital Camera", rates: [3000] }
+            - { id: lidar, label: "LiDAR", rates: [4000] }
+      tiers:
+        - { label: "Minimum 100 ha", up_to: null }
+
+  - id: image-processing
+    label: "Image Processing"
+    unit_type: count
+    unit: image
+    unit_display: "images"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        rectification_restoration: 100000
+        enhancement_analysis: 150000

@@ -1,0 +1,102 @@
+id: engineering-surveys
+label: "Engineering Surveys"
+services:
+  - id: topographic-survey
+    label: "Topographic Survey"
+    unit_type: area
+    unit: ha
+    unit_display: "hectares"
+    strategy: tiered_per_unit
+    tiered_per:
+      parameters:
+        - id: contour
+          label: "Contour Interval"
+          type: select
+          options:
+            - { id: "0.5m", label: "0.5m", rates: [50000, 30000, 20000, 15000] }
+            - { id: "1.0m", label: "1.0m", rates: [45000, 25000, 15000, 10000] }
+            - { id: "2.0m", label: "2.0m", rates: [40000, 20000, 10000, 8000] }
+            - { id: "5.0m", label: "5.0m", rates: [35000, 15000, 8000, 6000] }
+      tiers:
+        - { label: "First 1 ha", up_to: 1 }
+        - { label: "Succeeding up to 10 ha", up_to: 10 }
+        - { label: "Succeeding up to 20 ha", up_to: 20 }
+        - { label: "In excess of 20 ha", up_to: null }
+    modifiers:
+      - id: slope
+        label: "Slope > 18%"
+        type: percentage_add
+        options:
+          - { id: yes, label: "Yes", value: 0.5 }
+          - { id: no, label: "No", value: 0 }
+
+  - id: route-survey
+    label: "Route Survey"
+    unit_type: length
+    unit: km
+    unit_display: "km"
+    strategy: tiered_per_unit
+    tiered_per:
+      parameters:
+        - id: type
+          label: "Survey Type"
+          type: select
+          options:
+            - id: detailed
+              label: "Detailed Engineering"
+              rates: [80000]
+            - id: feasibility
+              label: "Feasibility Study"
+              rates: [40000]
+      tiers:
+        - { label: "Per Kilometer", up_to: null }
+    parameters:
+      - id: component
+        label: "Individual Components"
+        type: select
+        options:
+          - { id: road_centerline, label: "Road Centerline Alignment", rate: 40000 }
+          - { id: parcellary_rural, label: "Parcellary Survey (Rural)", rate: 180000 }
+          - { id: vertical_control, label: "Vertical Control / Profile", rate: 30000 }
+          - { id: cross_section, label: "Cross Section", rate: 40000 }
+
+  - id: hydrographic-survey
+    label: "Hydrographic Survey"
+    unit_type: area
+    unit: ha
+    unit_display: "hectares"
+    strategy: tiered_per_unit
+    tiered_per:
+      parameters:
+        - id: interval
+          label: "Depth-Curve Interval"
+          type: select
+          options:
+            - { id: "1.0m", label: "1.0m", rates: [50000, 45000, 40000, 35000, 30000] }
+      tiers:
+        - { label: "First 1 ha", up_to: 1 }
+        - { label: "Succeeding up to 10 ha", up_to: 10 }
+        - { label: "Succeeding up to 20 ha", up_to: 20 }
+        - { label: "Succeeding up to 50 ha", up_to: 50 }
+        - { label: "In excess of 50 ha", up_to: null }
+
+  - id: control-points
+    label: "Control Points"
+    unit_type: count
+    unit: point
+    unit_display: "points"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        geodetic: 20000
+        project: 15000
+
+  - id: differential-levelling
+    label: "Differential Levelling"
+    unit_type: length
+    unit: km
+    unit_display: "km"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        standard: 10000

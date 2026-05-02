@@ -202,7 +202,7 @@ export const leaseAreaSurvey: Service = {
       { id: "1500-2000", min: 1500, max: 2000 },
     ],
     rows: {
-      "lt200": [15000],
+      lt200: [15000],
       "200-400": [20500],
       "400-600": [26000],
       "600-800": [31500],
@@ -357,9 +357,7 @@ export const hydrographicSurvey: Service = {
       id: "interval",
       label: "Depth-Curve Interval",
       type: "select",
-      options: [
-        { id: "1.0m", label: "1.0m", rates: [50000, 45000, 40000, 35000, 30000] },
-      ],
+      options: [{ id: "1.0m", label: "1.0m", rates: [50000, 45000, 40000, 35000, 30000] }],
     },
   ],
   tiered_per: {

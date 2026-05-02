@@ -169,27 +169,42 @@ export function QuotePDF({ project, results, totals, branding }: QuotePDFProps) 
             <Text style={[styles.colAmount, { fontWeight: "bold" }]}>Amount</Text>
           </View>
 
-          {results.map((res) => (
-            <View key={res.id} wrap={false}>
-              <View style={styles.tableRow}>
-                <Text style={styles.colDesc}>{res.service.label}</Text>
-                <Text style={styles.colQty}>
-                  {res.lineItems[0]?.quantity} {res.service.unit}
-                </Text>
-                <Text style={styles.colAmount}>{res.total.format()}</Text>
-              </View>
-              {res.modifiers.map((mod) => (
-                <View key={mod.id} style={styles.modifierRow}>
-                  <Text style={styles.colDesc}>
-                    {" "}
-                    + {mod.label}: {mod.optionLabel}
+          {results.map((res) => {
+            const isGrouped = res.service.strategy === "time_based";
+            const totalQty = res.lineItems.reduce((acc, li) => acc + li.quantity, 0);
+
+            return (
+              <View key={res.id} wrap={false}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.colDesc}>{res.service.label}</Text>
+                  <Text style={styles.colQty}>
+                    {isGrouped ? totalQty : res.lineItems[0]?.quantity} {res.service.unit}
                   </Text>
-                  <Text style={styles.colQty}></Text>
-                  <Text style={styles.colAmount}>+{mod.formattedAmount}</Text>
+                  <Text style={styles.colAmount}>{res.total.format()}</Text>
                 </View>
-              ))}
-            </View>
-          ))}
+
+                {/* Sub-items Breakdown */}
+                {res.lineItems.map((li) => (
+                  <View key={li.id} style={[styles.modifierRow, { color: "#666" }]}>
+                    <Text style={styles.colDesc}> • {li.label}</Text>
+                    <Text style={styles.colQty}>{li.quantity}</Text>
+                    <Text style={styles.colAmount}>{li.formattedAmount}</Text>
+                  </View>
+                ))}
+
+                {res.modifiers.map((mod) => (
+                  <View key={mod.id} style={styles.modifierRow}>
+                    <Text style={styles.colDesc}>
+                      {" "}
+                      + {mod.label}: {mod.optionLabel}
+                    </Text>
+                    <Text style={styles.colQty}></Text>
+                    <Text style={styles.colAmount}>+{mod.formattedAmount}</Text>
+                  </View>
+                ))}
+              </View>
+            );
+          })}
         </View>
 
         {/* Totals */}

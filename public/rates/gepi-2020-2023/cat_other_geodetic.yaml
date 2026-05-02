@@ -1,0 +1,87 @@
+id: other-geodetic-services
+label: "Other Geodetic Services"
+services:
+  - id: mineral-land-survey
+    label: "Mineral Land Survey"
+    unit_type: count
+    unit: block
+    unit_display: "blocks"
+    strategy: tiered_base_plus_unit
+    tiered_base:
+      tiers:
+        - { range: [1, 5], base: 200000, per_unit: 200000, excess_above: 0 }
+        - { range: [6, null], base: 1000000, per_unit: 150000, excess_above: 5 }
+    parameters:
+      - id: type
+        label: "Mineral Type"
+        type: select
+        options:
+          - { id: general, label: "General Mineral Land", rate: 200000 }
+          - { id: coal, label: "Mineral Land for Coal", rate: 300000 }
+
+  - id: memorial-park-survey
+    label: "Memorial Park Survey"
+    unit_type: count
+    unit: lot
+    unit_display: "lots"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        standard: 360
+    warnings:
+      - "Or 1% of the selling cost, whichever is higher."
+
+  - id: consulting-services
+    label: "Consulting Services"
+    unit_type: time
+    unit: hour
+    unit_display: "hours"
+    strategy: time_based
+    time_based:
+      roles:
+        consultation: 1000
+      minimum_hours: 4
+    parameters:
+      - id: activity
+        label: "Consulting Activity"
+        type: select
+        options:
+          - { id: court_appearance, label: "Legal Court Appearance", rate: 5000 }
+          - { id: joint_survey_observer, label: "Joint Survey (Observer)", rate: 5000 }
+          - { id: joint_survey_team, label: "Joint Survey (with Team)", rate: 20000 }
+
+  - id: caap-certification
+    label: "CAAP Certification"
+    unit_type: count
+    unit: point
+    unit_display: "points"
+    strategy: tiered_base_plus_unit
+    tiered_base:
+      tiers:
+        - { range: [1, 4], base: 120000, per_unit: 30000, excess_above: 0 }
+        - { range: [5, null], base: 120000, per_unit: 25000, excess_above: 4 }
+    parameters:
+      - id: structure
+        label: "Structure Type"
+        type: select
+        options:
+          - { id: building, label: "Building (per corner)", rate: 30000 }
+          - { id: fence, label: "Fence (per corner)", rate: 25000 }
+          - { id: tower, label: "Tower Antenna (center)", rate: 120000 }
+          - { id: electrical_post, label: "Electrical Post (per post)", rate: 25000 }
+
+  - id: construction-setout
+    label: "Construction Set-out"
+    unit_type: count
+    unit: point
+    unit_display: "points"
+    strategy: flat_per_unit
+    flat_rates:
+      rates:
+        per_point: 1000
+    additional_fees:
+      - id: visitation-fee
+        label: "Survey Team Visitation Fee"
+        type: flat
+        value: 10000
+        category: misc

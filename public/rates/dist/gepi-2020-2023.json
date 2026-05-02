@@ -1,0 +1,1522 @@
+{
+  "meta": {
+    "title": "GEPI Guide for Geodetic Engineering Services Fees 2020–2023",
+    "version": "2020-2023",
+    "currency": "PHP",
+    "vat_rate": 0.12,
+    "source_url": "/rates/gepi-2020-2023.yaml"
+  },
+  "units": {
+    "area": {
+      "canonical": "ha",
+      "units": {
+        "ha": {
+          "factor": 1,
+          "aliases": ["hectare", "hectares"]
+        },
+        "sqm": {
+          "factor": 0.0001,
+          "aliases": ["m2", "sq.m"]
+        },
+        "sqkm": {
+          "factor": 100
+        },
+        "acre": {
+          "factor": 0.404686
+        }
+      }
+    },
+    "length": {
+      "canonical": "km",
+      "units": {
+        "km": {
+          "factor": 1
+        },
+        "m": {
+          "factor": 0.001
+        },
+        "cm": {
+          "factor": 0.00001
+        }
+      }
+    },
+    "count": {
+      "canonical": "lot",
+      "units": {
+        "lot": {
+          "factor": 1,
+          "aliases": ["lots"]
+        }
+      }
+    },
+    "time": {
+      "canonical": "hour",
+      "units": {
+        "hour": {
+          "factor": 1
+        },
+        "day": {
+          "factor": 8
+        }
+      }
+    }
+  },
+  "categories": [
+    {
+      "id": "isolated-land-surveys",
+      "label": "Isolated Land Surveys",
+      "services": [
+        {
+          "id": "original-survey",
+          "label": "Original Survey / Re-Survey",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "unit_conversions": ["sqm"],
+          "strategy": "lookup_table",
+          "table": {
+            "columns": [0, 10, 20, 30, 40, 50, 60],
+            "rows": {
+              "2": [80000, 274000, 438000, 578000, 702000, 819000, 943000],
+              "3": [100000, 291000, 452000, 592000, 715000, 832000, 953000],
+              "4": [120000, 308000, 466000, 606000, 728000, 845000, 963000],
+              "5": [140000, 325000, 480000, 606000, 728000, 858000, 973000],
+              "6": [160000, 342000, 494000, 620000, 741000, 871000, 983000],
+              "7": [180000, 359000, 508000, 634000, 754000, 884000, 993000],
+              "8": [200000, 376000, 522000, 648000, 767000, 897000, 1003000],
+              "9": [220000, 393000, 536000, 662000, 780000, 910000, 1013000],
+              "10": [240000, 410000, 550000, 676000, 793000, 923000, 1023000],
+              "lt0.5": [45000],
+              "0.5-1": [60000, 257000, 424000, 564000, 689000, 806000, 933000]
+            },
+            "row_logic": [
+              {
+                "id": "lt0.5",
+                "min": 0,
+                "max": 0.499
+              },
+              {
+                "id": "0.5-1",
+                "min": 0.5,
+                "max": 1
+              },
+              {
+                "id": "2",
+                "min": 2,
+                "max": 2
+              },
+              {
+                "id": "3",
+                "min": 3,
+                "max": 3
+              },
+              {
+                "id": "4",
+                "min": 4,
+                "max": 4
+              },
+              {
+                "id": "5",
+                "min": 5,
+                "max": 5
+              },
+              {
+                "id": "6",
+                "min": 6,
+                "max": 6
+              },
+              {
+                "id": "7",
+                "min": 7,
+                "max": 7
+              },
+              {
+                "id": "8",
+                "min": 8,
+                "max": 8
+              },
+              {
+                "id": "9",
+                "min": 9,
+                "max": 9
+              },
+              {
+                "id": "10",
+                "min": 10,
+                "max": 10
+              }
+            ],
+            "excess_rate": 10000,
+            "excess_threshold": 70
+          },
+          "modifiers": [
+            {
+              "id": "land-use",
+              "label": "Land Use Factor",
+              "type": "percentage_add",
+              "options": [
+                {
+                  "id": "residential",
+                  "label": "Residential",
+                  "value": 0.5
+                },
+                {
+                  "id": "commercial",
+                  "label": "Commercial",
+                  "value": 1.5
+                },
+                {
+                  "id": "industrial",
+                  "label": "Industrial",
+                  "value": 1.2
+                },
+                {
+                  "id": "agricultural",
+                  "label": "Agricultural",
+                  "value": 0
+                },
+                {
+                  "id": "institutional",
+                  "label": "Institutional",
+                  "value": 0
+                },
+                {
+                  "id": "govt_reservations",
+                  "label": "Government Reservations",
+                  "value": 0
+                },
+                {
+                  "id": "foreshore",
+                  "label": "Foreshore Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "forestlands",
+                  "label": "Forestlands",
+                  "value": 0.5
+                },
+                {
+                  "id": "protected_areas",
+                  "label": "Protected Areas",
+                  "value": 0.5
+                },
+                {
+                  "id": "ancestral_lands",
+                  "label": "Ancestral Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "mixed_use",
+                  "label": "Mixed Use",
+                  "value": 1.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "relocation-survey",
+          "label": "Relocation Survey",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "unit_conversions": ["sqm"],
+          "strategy": "lookup_table",
+          "table": {
+            "columns": [0, 10, 20, 30, 40, 50, 60],
+            "rows": {
+              "2": [40000, 137000, 219000, 289000, 351000, 409500, 471500],
+              "3": [50000, 145500, 226000, 296000, 357500, 416000, 476500],
+              "4": [60000, 154000, 233000, 303000, 364000, 422500, 481500],
+              "5": [70000, 162500, 240000, 303000, 364000, 429000, 486500],
+              "6": [80000, 171000, 247000, 310000, 370500, 435500, 491500],
+              "7": [90000, 179500, 254000, 317000, 377000, 442000, 496500],
+              "8": [100000, 188000, 261000, 324000, 383500, 448500, 501500],
+              "9": [110000, 196500, 268000, 331000, 390000, 455000, 506500],
+              "10": [120000, 205000, 275000, 338000, 396500, 461500, 511500],
+              "lt0.5": [25000],
+              "0.5-1": [30000, 128500, 212000, 282000, 344500, 403000, 466500]
+            },
+            "row_logic": [
+              {
+                "id": "lt0.5",
+                "min": 0,
+                "max": 0.499
+              },
+              {
+                "id": "0.5-1",
+                "min": 0.5,
+                "max": 1
+              },
+              {
+                "id": "2",
+                "min": 2,
+                "max": 2
+              },
+              {
+                "id": "3",
+                "min": 3,
+                "max": 3
+              },
+              {
+                "id": "4",
+                "min": 4,
+                "max": 4
+              },
+              {
+                "id": "5",
+                "min": 5,
+                "max": 5
+              },
+              {
+                "id": "6",
+                "min": 6,
+                "max": 6
+              },
+              {
+                "id": "7",
+                "min": 7,
+                "max": 7
+              },
+              {
+                "id": "8",
+                "min": 8,
+                "max": 8
+              },
+              {
+                "id": "9",
+                "min": 9,
+                "max": 9
+              },
+              {
+                "id": "10",
+                "min": 10,
+                "max": 10
+              }
+            ],
+            "excess_rate": 5000,
+            "excess_threshold": 70
+          },
+          "modifiers": [
+            {
+              "id": "land-use",
+              "label": "Land Use Factor",
+              "type": "percentage_add",
+              "options": [
+                {
+                  "id": "residential",
+                  "label": "Residential",
+                  "value": 0.5
+                },
+                {
+                  "id": "commercial",
+                  "label": "Commercial",
+                  "value": 1.5
+                },
+                {
+                  "id": "industrial",
+                  "label": "Industrial",
+                  "value": 1.2
+                },
+                {
+                  "id": "agricultural",
+                  "label": "Agricultural",
+                  "value": 0
+                },
+                {
+                  "id": "institutional",
+                  "label": "Institutional",
+                  "value": 0
+                },
+                {
+                  "id": "govt_reservations",
+                  "label": "Government Reservations",
+                  "value": 0
+                },
+                {
+                  "id": "foreshore",
+                  "label": "Foreshore Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "forestlands",
+                  "label": "Forestlands",
+                  "value": 0.5
+                },
+                {
+                  "id": "protected_areas",
+                  "label": "Protected Areas",
+                  "value": 0.5
+                },
+                {
+                  "id": "ancestral_lands",
+                  "label": "Ancestral Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "mixed_use",
+                  "label": "Mixed Use",
+                  "value": 1.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "verification-survey",
+          "label": "Verification Survey",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "unit_conversions": ["sqm"],
+          "strategy": "lookup_table",
+          "table": {
+            "columns": [0, 10, 20, 30, 40, 50, 60],
+            "rows": {
+              "2": [100000, 342500, 547500, 722500, 877500, 1023750, 1178750],
+              "3": [125000, 363750, 565000, 740000, 893750, 1040000, 1191250],
+              "4": [150000, 385000, 582500, 757500, 910000, 1056250, 1203750],
+              "5": [175000, 406250, 600000, 757500, 910000, 1072500, 1216250],
+              "6": [200000, 427500, 617500, 775000, 926250, 1088750, 1228750],
+              "7": [225000, 448750, 635000, 792500, 942500, 1105000, 1241250],
+              "8": [250000, 470000, 652500, 810000, 958750, 1121250, 1253750],
+              "9": [275000, 491250, 670000, 827500, 975000, 1137500, 1266250],
+              "10": [300000, 512500, 687500, 845000, 991250, 1153750, 1278750],
+              "lt0.5": [55000],
+              "0.5-1": [75000, 321250, 530000, 705000, 861250, 1007500, 1166250]
+            },
+            "row_logic": [
+              {
+                "id": "lt0.5",
+                "min": 0,
+                "max": 0.499
+              },
+              {
+                "id": "0.5-1",
+                "min": 0.5,
+                "max": 1
+              },
+              {
+                "id": "2",
+                "min": 2,
+                "max": 2
+              },
+              {
+                "id": "3",
+                "min": 3,
+                "max": 3
+              },
+              {
+                "id": "4",
+                "min": 4,
+                "max": 4
+              },
+              {
+                "id": "5",
+                "min": 5,
+                "max": 5
+              },
+              {
+                "id": "6",
+                "min": 6,
+                "max": 6
+              },
+              {
+                "id": "7",
+                "min": 7,
+                "max": 7
+              },
+              {
+                "id": "8",
+                "min": 8,
+                "max": 8
+              },
+              {
+                "id": "9",
+                "min": 9,
+                "max": 9
+              },
+              {
+                "id": "10",
+                "min": 10,
+                "max": 10
+              }
+            ],
+            "excess_rate": 8000,
+            "excess_threshold": 70
+          },
+          "modifiers": [
+            {
+              "id": "land-use",
+              "label": "Land Use Factor",
+              "type": "percentage_add",
+              "options": [
+                {
+                  "id": "residential",
+                  "label": "Residential",
+                  "value": 0.5
+                },
+                {
+                  "id": "commercial",
+                  "label": "Commercial",
+                  "value": 1.5
+                },
+                {
+                  "id": "industrial",
+                  "label": "Industrial",
+                  "value": 1.2
+                },
+                {
+                  "id": "agricultural",
+                  "label": "Agricultural",
+                  "value": 0
+                },
+                {
+                  "id": "institutional",
+                  "label": "Institutional",
+                  "value": 0
+                },
+                {
+                  "id": "govt_reservations",
+                  "label": "Government Reservations",
+                  "value": 0
+                },
+                {
+                  "id": "foreshore",
+                  "label": "Foreshore Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "forestlands",
+                  "label": "Forestlands",
+                  "value": 0.5
+                },
+                {
+                  "id": "protected_areas",
+                  "label": "Protected Areas",
+                  "value": 0.5
+                },
+                {
+                  "id": "ancestral_lands",
+                  "label": "Ancestral Lands",
+                  "value": 0.5
+                },
+                {
+                  "id": "mixed_use",
+                  "label": "Mixed Use",
+                  "value": 1.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "court-appearance",
+          "label": "Court Appearance",
+          "unit_type": "count",
+          "unit": "appearance",
+          "unit_display": "appearances",
+          "strategy": "flat",
+          "base_fee": 5000,
+          "warnings": ["Or Hourly Rate whichever is higher."]
+        }
+      ]
+    },
+    {
+      "id": "subdivision-surveys",
+      "label": "Subdivision Surveys",
+      "services": [
+        {
+          "id": "residential-subdivision",
+          "label": "Residential Subdivision",
+          "unit_type": "count",
+          "unit": "lot",
+          "unit_display": "lots",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [2, 4],
+                "base": 38000,
+                "per_unit": 12000,
+                "excess_above": 2
+              },
+              {
+                "range": [5, 9],
+                "base": 62000,
+                "per_unit": 11500,
+                "excess_above": 5
+              },
+              {
+                "range": [10, 19],
+                "base": 108000,
+                "per_unit": 11000,
+                "excess_above": 10
+              },
+              {
+                "range": [20, 29],
+                "base": 207000,
+                "per_unit": 10500,
+                "excess_above": 20
+              },
+              {
+                "range": [30, 39],
+                "base": 301500,
+                "per_unit": 10000,
+                "excess_above": 30
+              },
+              {
+                "range": [40, 49],
+                "base": 391500,
+                "per_unit": 9500,
+                "excess_above": 40
+              },
+              {
+                "range": [50, 99],
+                "base": 477000,
+                "per_unit": 9000,
+                "excess_above": 50
+              },
+              {
+                "range": [100, 199],
+                "base": 558000,
+                "per_unit": 6500,
+                "excess_above": 100
+              },
+              {
+                "range": [200, 299],
+                "base": 1201500,
+                "per_unit": 5000,
+                "excess_above": 200
+              },
+              {
+                "range": [300, 399],
+                "base": 1696500,
+                "per_unit": 4000,
+                "excess_above": 300
+              },
+              {
+                "range": [400, 499],
+                "base": 2092500,
+                "per_unit": 3000,
+                "excess_above": 400
+              },
+              {
+                "range": [500, 999],
+                "base": 2389500,
+                "per_unit": 2000,
+                "excess_above": 500
+              },
+              {
+                "range": [1000, null],
+                "base": 3387500,
+                "per_unit": 1000,
+                "excess_above": 1000
+              }
+            ]
+          }
+        },
+        {
+          "id": "agricultural-subdivision",
+          "label": "Agricultural Subdivision",
+          "unit_type": "count",
+          "unit": "lot",
+          "unit_display": "lots",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [1, 4],
+                "base": 25000,
+                "per_unit": 6500,
+                "excess_above": 2
+              },
+              {
+                "range": [5, 9],
+                "base": 38000,
+                "per_unit": 6000,
+                "excess_above": 5
+              },
+              {
+                "range": [10, 19],
+                "base": 64000,
+                "per_unit": 5500,
+                "excess_above": 10
+              },
+              {
+                "range": [20, 29],
+                "base": 122500,
+                "per_unit": 5000,
+                "excess_above": 20
+              },
+              {
+                "range": [30, 39],
+                "base": 181000,
+                "per_unit": 4500,
+                "excess_above": 30
+              },
+              {
+                "range": [40, 49],
+                "base": 239500,
+                "per_unit": 4000,
+                "excess_above": 40
+              },
+              {
+                "range": [50, 99],
+                "base": 298000,
+                "per_unit": 3500,
+                "excess_above": 50
+              },
+              {
+                "range": [100, null],
+                "base": 616500,
+                "per_unit": 2500,
+                "excess_above": 100
+              }
+            ]
+          }
+        },
+        {
+          "id": "institutional-subdivision",
+          "label": "Institutional Subdivision",
+          "unit_type": "count",
+          "unit": "lot",
+          "unit_display": "lots",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [1, 4],
+                "base": 30000,
+                "per_unit": 6500,
+                "excess_above": 2
+              },
+              {
+                "range": [5, 9],
+                "base": 43000,
+                "per_unit": 6000,
+                "excess_above": 5
+              },
+              {
+                "range": [10, 19],
+                "base": 69000,
+                "per_unit": 5500,
+                "excess_above": 10
+              },
+              {
+                "range": [20, 29],
+                "base": 127500,
+                "per_unit": 5000,
+                "excess_above": 20
+              },
+              {
+                "range": [30, 39],
+                "base": 186000,
+                "per_unit": 4500,
+                "excess_above": 30
+              },
+              {
+                "range": [40, 49],
+                "base": 244500,
+                "per_unit": 4000,
+                "excess_above": 40
+              },
+              {
+                "range": [50, 99],
+                "base": 303000,
+                "per_unit": 3500,
+                "excess_above": 50
+              },
+              {
+                "range": [100, null],
+                "base": 621500,
+                "per_unit": 2500,
+                "excess_above": 100
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "engineering-surveys",
+      "label": "Engineering Surveys",
+      "services": [
+        {
+          "id": "topographic-survey",
+          "label": "Topographic Survey",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "strategy": "tiered_per_unit",
+          "tiered_per": {
+            "parameters": [
+              {
+                "id": "contour",
+                "label": "Contour Interval",
+                "type": "select",
+                "options": [
+                  {
+                    "id": "0.5m",
+                    "label": "0.5m",
+                    "rates": [50000, 30000, 20000, 15000]
+                  },
+                  {
+                    "id": "1.0m",
+                    "label": "1.0m",
+                    "rates": [45000, 25000, 15000, 10000]
+                  },
+                  {
+                    "id": "2.0m",
+                    "label": "2.0m",
+                    "rates": [40000, 20000, 10000, 8000]
+                  },
+                  {
+                    "id": "5.0m",
+                    "label": "5.0m",
+                    "rates": [35000, 15000, 8000, 6000]
+                  }
+                ]
+              }
+            ],
+            "tiers": [
+              {
+                "label": "First 1 ha",
+                "up_to": 1
+              },
+              {
+                "label": "Succeeding up to 10 ha",
+                "up_to": 10
+              },
+              {
+                "label": "Succeeding up to 20 ha",
+                "up_to": 20
+              },
+              {
+                "label": "In excess of 20 ha",
+                "up_to": null
+              }
+            ]
+          },
+          "modifiers": [
+            {
+              "id": "slope",
+              "label": "Slope > 18%",
+              "type": "percentage_add",
+              "options": [
+                {
+                  "id": "yes",
+                  "label": "Yes",
+                  "value": 0.5
+                },
+                {
+                  "id": "no",
+                  "label": "No",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "route-survey",
+          "label": "Route Survey",
+          "unit_type": "length",
+          "unit": "km",
+          "unit_display": "km",
+          "strategy": "tiered_per_unit",
+          "tiered_per": {
+            "parameters": [
+              {
+                "id": "type",
+                "label": "Survey Type",
+                "type": "select",
+                "options": [
+                  {
+                    "id": "detailed",
+                    "label": "Detailed Engineering",
+                    "rates": [80000]
+                  },
+                  {
+                    "id": "feasibility",
+                    "label": "Feasibility Study",
+                    "rates": [40000]
+                  }
+                ]
+              }
+            ],
+            "tiers": [
+              {
+                "label": "Per Kilometer",
+                "up_to": null
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": "component",
+              "label": "Individual Components",
+              "type": "select",
+              "options": [
+                {
+                  "id": "road_centerline",
+                  "label": "Road Centerline Alignment",
+                  "rate": 40000
+                },
+                {
+                  "id": "parcellary_rural",
+                  "label": "Parcellary Survey (Rural)",
+                  "rate": 180000
+                },
+                {
+                  "id": "vertical_control",
+                  "label": "Vertical Control / Profile",
+                  "rate": 30000
+                },
+                {
+                  "id": "cross_section",
+                  "label": "Cross Section",
+                  "rate": 40000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "hydrographic-survey",
+          "label": "Hydrographic Survey",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "strategy": "tiered_per_unit",
+          "tiered_per": {
+            "parameters": [
+              {
+                "id": "interval",
+                "label": "Depth-Curve Interval",
+                "type": "select",
+                "options": [
+                  {
+                    "id": "1.0m",
+                    "label": "1.0m",
+                    "rates": [50000, 45000, 40000, 35000, 30000]
+                  }
+                ]
+              }
+            ],
+            "tiers": [
+              {
+                "label": "First 1 ha",
+                "up_to": 1
+              },
+              {
+                "label": "Succeeding up to 10 ha",
+                "up_to": 10
+              },
+              {
+                "label": "Succeeding up to 20 ha",
+                "up_to": 20
+              },
+              {
+                "label": "Succeeding up to 50 ha",
+                "up_to": 50
+              },
+              {
+                "label": "In excess of 50 ha",
+                "up_to": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "control-points",
+          "label": "Control Points",
+          "unit_type": "count",
+          "unit": "point",
+          "unit_display": "points",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "geodetic": 20000,
+              "project": 15000
+            }
+          }
+        },
+        {
+          "id": "differential-levelling",
+          "label": "Differential Levelling",
+          "unit_type": "length",
+          "unit": "km",
+          "unit_display": "km",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "standard": 10000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "other-geodetic-services",
+      "label": "Other Geodetic Services",
+      "services": [
+        {
+          "id": "mineral-land-survey",
+          "label": "Mineral Land Survey",
+          "unit_type": "count",
+          "unit": "block",
+          "unit_display": "blocks",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [1, 5],
+                "base": 200000,
+                "per_unit": 200000,
+                "excess_above": 0
+              },
+              {
+                "range": [6, null],
+                "base": 1000000,
+                "per_unit": 150000,
+                "excess_above": 5
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": "type",
+              "label": "Mineral Type",
+              "type": "select",
+              "options": [
+                {
+                  "id": "general",
+                  "label": "General Mineral Land",
+                  "rate": 200000
+                },
+                {
+                  "id": "coal",
+                  "label": "Mineral Land for Coal",
+                  "rate": 300000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "memorial-park-survey",
+          "label": "Memorial Park Survey",
+          "unit_type": "count",
+          "unit": "lot",
+          "unit_display": "lots",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "standard": 360
+            }
+          },
+          "warnings": ["Or 1% of the selling cost, whichever is higher."]
+        },
+        {
+          "id": "consulting-services",
+          "label": "Consulting Services",
+          "unit_type": "time",
+          "unit": "hour",
+          "unit_display": "hours",
+          "strategy": "time_based",
+          "time_based": {
+            "roles": {
+              "consultation": 1000
+            },
+            "minimum_hours": 4
+          },
+          "parameters": [
+            {
+              "id": "activity",
+              "label": "Consulting Activity",
+              "type": "select",
+              "options": [
+                {
+                  "id": "court_appearance",
+                  "label": "Legal Court Appearance",
+                  "rate": 5000
+                },
+                {
+                  "id": "joint_survey_observer",
+                  "label": "Joint Survey (Observer)",
+                  "rate": 5000
+                },
+                {
+                  "id": "joint_survey_team",
+                  "label": "Joint Survey (with Team)",
+                  "rate": 20000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "caap-certification",
+          "label": "CAAP Certification",
+          "unit_type": "count",
+          "unit": "point",
+          "unit_display": "points",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [1, 4],
+                "base": 120000,
+                "per_unit": 30000,
+                "excess_above": 0
+              },
+              {
+                "range": [5, null],
+                "base": 120000,
+                "per_unit": 25000,
+                "excess_above": 4
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": "structure",
+              "label": "Structure Type",
+              "type": "select",
+              "options": [
+                {
+                  "id": "building",
+                  "label": "Building (per corner)",
+                  "rate": 30000
+                },
+                {
+                  "id": "fence",
+                  "label": "Fence (per corner)",
+                  "rate": 25000
+                },
+                {
+                  "id": "tower",
+                  "label": "Tower Antenna (center)",
+                  "rate": 120000
+                },
+                {
+                  "id": "electrical_post",
+                  "label": "Electrical Post (per post)",
+                  "rate": 25000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "construction-setout",
+          "label": "Construction Set-out",
+          "unit_type": "count",
+          "unit": "point",
+          "unit_display": "points",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "per_point": 1000
+            }
+          },
+          "additional_fees": [
+            {
+              "id": "visitation-fee",
+              "label": "Survey Team Visitation Fee",
+              "type": "flat",
+              "category": "misc",
+              "value": 10000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mapping-spatial-services",
+      "label": "Mapping and Spatial Information",
+      "services": [
+        {
+          "id": "laser-mapping",
+          "label": "Laser Mapping Services",
+          "unit_type": "count",
+          "unit": "point",
+          "unit_display": "points/km",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "static_laser": 100000,
+              "mobile_laser": 50000
+            }
+          }
+        },
+        {
+          "id": "uav-mapping",
+          "label": "UAV Mapping Services",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "strategy": "tiered_per_unit",
+          "tiered_per": {
+            "parameters": [
+              {
+                "id": "type",
+                "label": "Mapping Type",
+                "type": "select",
+                "options": [
+                  {
+                    "id": "standard",
+                    "label": "UAV Mapping",
+                    "rates": [3000]
+                  }
+                ]
+              }
+            ],
+            "tiers": [
+              {
+                "label": "Minimum 100 ha",
+                "up_to": null
+              }
+            ]
+          },
+          "warnings": ["Minimum 100 hectares required for this rate."]
+        },
+        {
+          "id": "location-plan",
+          "label": "Location Plan with Vicinity Map",
+          "unit_type": "count",
+          "unit": "plan",
+          "unit_display": "plans",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "residential": 5000,
+              "agricultural": 7500,
+              "industrial_commercial": 10000
+            }
+          }
+        },
+        {
+          "id": "digitized-map",
+          "label": "Digitized Map / Raster Data",
+          "unit_type": "count",
+          "unit": "sheet",
+          "unit_display": "sheets",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "low_density": 70000,
+              "medium_density": 150000,
+              "high_density": 250000
+            }
+          }
+        },
+        {
+          "id": "sis-development",
+          "label": "SIS Development & Implementation",
+          "unit_type": "count",
+          "unit": "system",
+          "unit_display": "systems",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "development": 500000
+            }
+          },
+          "additional_fees": [
+            {
+              "id": "implementation-fee",
+              "label": "System Implementation (30%)",
+              "type": "percentage_of_base",
+              "category": "misc",
+              "value": 0.3
+            },
+            {
+              "id": "deployment-fee",
+              "label": "System Deployment (10%)",
+              "type": "percentage_of_base",
+              "category": "misc",
+              "value": 0.1
+            }
+          ]
+        },
+        {
+          "id": "photogrammetry-aerial",
+          "label": "Photogrammetry & Remote Sensing",
+          "unit_type": "area",
+          "unit": "ha",
+          "unit_display": "hectares",
+          "strategy": "tiered_per_unit",
+          "tiered_per": {
+            "parameters": [
+              {
+                "id": "type",
+                "label": "Survey Type",
+                "type": "select",
+                "options": [
+                  {
+                    "id": "aerial_digital",
+                    "label": "Aerial Digital Camera",
+                    "rates": [3000]
+                  },
+                  {
+                    "id": "lidar",
+                    "label": "LiDAR",
+                    "rates": [4000]
+                  }
+                ]
+              }
+            ],
+            "tiers": [
+              {
+                "label": "Minimum 100 ha",
+                "up_to": null
+              }
+            ]
+          }
+        },
+        {
+          "id": "image-processing",
+          "label": "Image Processing",
+          "unit_type": "count",
+          "unit": "image",
+          "unit_display": "images",
+          "strategy": "flat_per_unit",
+          "flat_rates": {
+            "rates": {
+              "rectification_restoration": 100000,
+              "enhancement_analysis": 150000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "property-consultative-services",
+      "label": "Property & Consultative Services",
+      "services": [
+        {
+          "id": "strata-condominium-survey",
+          "label": "Strata / Condominium Survey",
+          "unit_type": "count",
+          "unit": "unit",
+          "unit_display": "units",
+          "strategy": "tiered_base_plus_unit",
+          "tiered_base": {
+            "tiers": [
+              {
+                "range": [1, 2],
+                "base": 40000,
+                "per_unit": 0,
+                "excess_above": 2
+              },
+              {
+                "range": [3, null],
+                "base": 40000,
+                "per_unit": 5000,
+                "excess_above": 2
+              }
+            ]
+          },
+          "parameters": [
+            {
+              "id": "type",
+              "label": "Plan Type",
+              "type": "select",
+              "options": [
+                {
+                  "id": "draft",
+                  "label": "Draft / Preliminary Plans",
+                  "rate": 2500
+                },
+                {
+                  "id": "final",
+                  "label": "Final Strata Plan",
+                  "rate": 5000
+                }
+              ]
+            }
+          ],
+          "warnings": ["Draft Plans base fee is Php 5,000 for the first two units."]
+        },
+        {
+          "id": "lease-area-survey",
+          "label": "Lease Area Survey (NLA/GLA)",
+          "unit_type": "area",
+          "unit": "sqm",
+          "unit_display": "sq.m",
+          "strategy": "lookup_table",
+          "table": {
+            "columns": [0],
+            "rows": {
+              "lt200": [15000],
+              "200-400": [20500],
+              "400-600": [26000],
+              "600-800": [31500],
+              "800-1000": [38000],
+              "1000-1500": [51750],
+              "1500-2000": [65500]
+            },
+            "row_logic": [
+              {
+                "id": "lt200",
+                "min": 0,
+                "max": 199
+              },
+              {
+                "id": "200-400",
+                "min": 200,
+                "max": 399
+              },
+              {
+                "id": "400-600",
+                "min": 400,
+                "max": 599
+              },
+              {
+                "id": "600-800",
+                "min": 600,
+                "max": 799
+              },
+              {
+                "id": "800-1000",
+                "min": 800,
+                "max": 999
+              },
+              {
+                "id": "1000-1500",
+                "min": 1000,
+                "max": 1499
+              },
+              {
+                "id": "1500-2000",
+                "min": 1500,
+                "max": 2000
+              }
+            ]
+          },
+          "modifiers": [
+            {
+              "id": "location",
+              "label": "Location Premium",
+              "type": "percentage_add",
+              "options": [
+                {
+                  "id": "metro_city",
+                  "label": "Metro Manila / Metro City",
+                  "value": 0.3
+                },
+                {
+                  "id": "provincial",
+                  "label": "Provincial",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "id": "multi_tenancy",
+              "label": "Multi-Tenancy Discount",
+              "type": "multiplier",
+              "options": [
+                {
+                  "id": "single",
+                  "label": "Single Unit",
+                  "value": 1
+                },
+                {
+                  "id": "multiple",
+                  "label": "Multiple Units (One Visit)",
+                  "value": 0.66
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "honoraria-lecturer",
+          "label": "Honoraria (Lecturer/Resource Person)",
+          "unit_type": "time",
+          "unit": "hour",
+          "unit_display": "hours",
+          "strategy": "time_based",
+          "time_based": {
+            "roles": {
+              "ge_pd": 3294,
+              "sge_pm": 2883,
+              "ge_pm": 2522,
+              "ge_v": 2183,
+              "ge_iv": 1671,
+              "ge_iii": 1280,
+              "ge_ii": 997,
+              "ge_i": 739
+            }
+          },
+          "warnings": ["Based on 50 participants; increased proportionately for more."]
+        }
+      ]
+    }
+  ],
+  "uncategorized": [
+    {
+      "id": "staff-hourly-rates",
+      "label": "Professional Staff Hourly Rates",
+      "unit_type": "time",
+      "unit": "hour",
+      "unit_display": "hours",
+      "strategy": "time_based",
+      "time_based": {
+        "roles": {
+          "ge_project_director": 1918,
+          "sr_ge_project_manager": 1567,
+          "ge_project_manager": 1371,
+          "ge_v_party_chief": 1144,
+          "ge_iv_sr_supervising": 843,
+          "ge_iii_supervising": 646,
+          "ge_ii_project_ge": 484,
+          "ge_i_entry_level": 359
+        }
+      }
+    },
+    {
+      "id": "technical-hourly-rates",
+      "label": "Technical & Support Staff Hourly Rates",
+      "unit_type": "time",
+      "unit": "hour",
+      "unit_display": "hours",
+      "strategy": "time_based",
+      "time_based": {
+        "roles": {
+          "sr_survey_cartographer": 335,
+          "assistant_ge": 241,
+          "sr_cad_gis_operator": 196,
+          "ge_technician_instrument_man": 196,
+          "cad_gis_operator": 165,
+          "survey_researcher": 165,
+          "ge_trainee": 129,
+          "ge_aide_chainmen": 129,
+          "driver": 101,
+          "laborer": 101
+        }
+      }
+    },
+    {
+      "id": "equipment-hourly-rates",
+      "label": "Equipment Hourly Rates",
+      "unit_type": "time",
+      "unit": "hour",
+      "unit_display": "hours",
+      "strategy": "time_based",
+      "time_based": {
+        "roles": {
+          "total_station": 500,
+          "gps_single_frequency": 1563,
+          "gps_dual_frequency": 2250,
+          "echo_sounder": 1563,
+          "precise_level": 375,
+          "automatic_level": 188
+        }
+      }
+    }
+  ]
+}

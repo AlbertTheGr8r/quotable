@@ -1,0 +1,10 @@
+version: "2020-2023"
+meta: "./meta_units.yaml"
+categories:
+  isolated_land: "./cat_isolated_land.yaml"
+  subdivision: "./cat_subdivision.yaml"
+  engineering: "./cat_engineering.yaml"
+  other_geodetic: "./cat_other_geodetic.yaml"
+  mapping_spatial: "./cat_mapping_spatial.yaml"
+  property_consultative: "./cat_property_consultative.yaml"
+hourly: "./hourly_rates.yaml"

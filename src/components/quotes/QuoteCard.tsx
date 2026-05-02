@@ -150,16 +150,17 @@ export function QuoteCard({ project, item, rates }: QuoteCardProps) {
               <Label className="text-xs">Role / Resource</Label>
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none"
-                value={item.params.role || Object.keys(service.time_based.roles)[0]}
+                value={item.params.role || Object.keys(service.time_based?.roles)[0]}
                 onChange={(e) =>
                   actions.updateQuoteItem(project.id, item.id, {
                     params: { ...item.params, role: e.target.value },
                   })
                 }
               >
-                {Object.keys(service.time_based.roles).map((roleId) => (
+                {Object.keys(service.time_based?.roles).map((roleId) => (
                   <option key={roleId} value={roleId}>
-                    {roleId.replace(/_/g, " ").toUpperCase()} (₱{service.time_based!.roles[roleId].toLocaleString()}/hr)
+                    {roleId.replace(/_/g, " ").toUpperCase()} (₱
+                    {(service.time_based?.roles[roleId] ?? 0).toLocaleString()}/hr)
                   </option>
                 ))}
               </select>
